@@ -1,0 +1,26 @@
+.margen-superior-main{
+  margin-top: 40px;
+  padding: 15px;
+}
+
+.color-navbar {
+  background-color: #8B6F47 !important;
+  background-image: linear-gradient(90deg, #121b96 0%, #2697cc 100%);
+}
+.color-text-marca{
+  color: #1e3d87 !important;
+  font-size: 18px;
+}
+
+.boton-ancho-auto {
+  width: auto;
+}
+
+body {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+}
+
+.login-card {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.95);
+}
