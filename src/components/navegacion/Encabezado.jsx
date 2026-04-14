@@ -30,8 +30,8 @@ const Encabezado = () => {
   };
 
  const esLogin = location.pathname === "/login";
- const esCatalogo = location.pathname === "/catalogo"  && 
- localStorage.getitem("usuario-supabase") === null;
+ const esCatalogo = location.pathname === "/*"  && 
+ localStorage.getItem("usuario-supabase") === null;
 
  let contenidoMenu;
 

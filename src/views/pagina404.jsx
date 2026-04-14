@@ -1,6 +1,9 @@
 const Pagina404 = () => {
   return (
-    <div>Página no encontrada</div>
+     <div className="container py-5">
+     <h2>Página no encontrada</h2>
+    </div>
+   
   );
 };
 

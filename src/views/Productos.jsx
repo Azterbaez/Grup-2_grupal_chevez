@@ -1,6 +1,9 @@
 const Productos = () => {
   return (
-    <div>Productos</div>
+     <div className="container py-5">
+    <h2>Productos</h2>
+    </div>
+    
   );
 };
 

@@ -1,6 +1,8 @@
 const Catalogo = () => {
   return (
-    <div>Catalogo</div>
+    <div className="container py-5">
+      <h2>Catálogo</h2>
+    </div>
   );
 };
 

@@ -1,6 +1,9 @@
 const Proveedores = () => {
   return (
-    <div>Proveedores</div>
+      <div className="container py-5">
+     <h2>Proveedores</h2>
+    </div>
+   
   );
 };
 
