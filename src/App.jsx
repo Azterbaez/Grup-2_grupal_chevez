@@ -1,5 +1,4 @@
-import {usestate } from 'react'
-import { BrowserRouter as Router, Routes, Route  } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Encabezado from "./components/navegacion/Encabezado";
 
@@ -11,32 +10,41 @@ import Productos from "./views/Productos";
 import Proveedores from "./views/Proveedores";
 import RutaProtegida from "./components/rutas/RutasProtegida";
 import Pagina404 from "./views/pagina404";
+import './App.css';
 
-import './App.css'
-// <  > //
 const App = () => {
-    return (
-       <Router> 
 
-      <Encabezado /> 
-      <main className="margen-superior-main">
-         <Routes> 
-             <Route paht="/Login" element={ <Login /> }/>
+  return (
+     <Router>
+          <Routes>
+    
+            {/* 🔓 Ruta pública */}
+            <Route path="/login" element={<Login />} />
+    
+    
+               {/* 🔒 Rutas con Navbar */}
+                    <Route
+                      path="/*"
+                      element={
+                        <>
+                          <Encabezado />
+                          <main className="margen-superior-main">
+                            <Routes>
+                              <Route path="/" element={<RutaProtegida><Inicio /></RutaProtegida>} />
+                              <Route path="/Categorias" element={<RutaProtegida><Categorias /></RutaProtegida>} />
+                              <Route path="/Catalogo" element={<Catalogo />} />
+                              <Route path="/Productos" element={<RutaProtegida><Productos /></RutaProtegida>} />
+                              <Route path="/Proveedores" element={<RutaProtegida><Proveedores /></RutaProtegida>} />
+                              <Route path="*" element={<Pagina404 />} />
+                            </Routes>
+                          </main>
+                        </>
+                      }
+                    />
+            
+                  </Routes>
+                </Router>
+              );
+            };
 
-            <Route paht="/" element={ <RutaProtegida><Inicio /> </RutaProtegida> } />
-            <Route paht="/Categorias" element={ <RutaProtegida><Categorias /> </RutaProtegida> } />
-            <Route paht="/Catalogo" element={ <RutaProtegida><Catalogo /> </RutaProtegida> } />
-            <Route paht="/Productos" element={ <RutaProtegida><Productos /> </RutaProtegida> } />
-            <Route paht="/Proveedores" element={ <RutaProtegida><Proveedores /> </RutaProtegida> } />
-
-            <Route paht="*" element={ <Pagina404 /> }/>
-              
-
-      </Routes> 
-      </main>  
-       </Router> 
-    );
-}
-
-export default App;
-
+            export default App;
