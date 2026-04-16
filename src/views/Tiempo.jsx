@@ -61,7 +61,6 @@ const Tiempo = () => {
     cargarTiempos();
   }, []);
 
-  // ⌨️ Inputs
   const manejoCambioInput = (e) => {
     const { name, value } = e.target;
     setNuevoTiempo((prev) => ({
@@ -70,7 +69,7 @@ const Tiempo = () => {
     }));
   };
 
-  // ➕ Agregar fecha
+
   const agregarTiempo = async () => {
     try {
       if (!nuevoTiempo.fecha || !nuevoTiempo.mes || !nuevoTiempo.anio) {
