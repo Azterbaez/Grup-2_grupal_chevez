@@ -7,7 +7,7 @@ import ModalEditarCliente from "../components/clientes/ModalEditarCliente";
 import NotificacionOperacion from "../components/NotificacionOperacion";
 import TablaCliente from "../components/clientes/TablaCliente";
 
-const clientes = () => {
+const Clientes = () => {
 
   // 🔔 Toast
   const [toast, setToast] = useState({
@@ -202,4 +202,4 @@ const clientes = () => {
   );
 };
 
-export default clientes;
+export default Clientes;

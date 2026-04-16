@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Encabezado from "./components/navegacion/Encabezado";
 
 import Login from "./views/Login";
-import clientes from "./views/Clientes";
+import Clientes from "./views/Clientes";
 import Productos from "./views/Productos";
 import Tiempo from "./views/Tiempo";
 
@@ -28,7 +28,7 @@ const App = () => {
               <Encabezado />
               <main className="margen-superior-main">
                 <Routes>
-                  
+
                   {/* Redirección inicial */}
                   <Route
                     path="/"
@@ -40,7 +40,7 @@ const App = () => {
                   />
 
                   <Route
-                    path="/Clientes"
+                    path="/clientes"
                     element={
                       <RutaProtegida>
                         <Clientes />
