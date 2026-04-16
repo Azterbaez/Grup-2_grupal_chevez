@@ -28,7 +28,7 @@ const App = () => {
               <Encabezado />
               <main className="margen-superior-main">
                 <Routes>
-                  
+
                   {/* Redirección inicial */}
                   <Route
                     path="/"
@@ -40,7 +40,7 @@ const App = () => {
                   />
 
                   <Route
-                    path="/Clientes"
+                    path="/clientes"
                     element={
                       <RutaProtegida>
                         <Clientes />
