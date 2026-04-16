@@ -3,23 +3,28 @@ import { Container, Row, Col, Button, Spinner } from "react-bootstrap";
 import { supabase } from "../../src/assets/database/supabaseconfig";
 
 import ModalRegistroCliente from "../components/clientes/ModalRegistroCliente";
+import ModalEditarCliente from "../components/clientes/ModalEditarCliente";
 import NotificacionOperacion from "../components/NotificacionOperacion";
 import TablaCliente from "../components/clientes/TablaCliente";
 
 const Clientes = () => {
-  // 🔔 Notificaciones
+
+  // 🔔 Toast
   const [toast, setToast] = useState({
     mostrar: false,
     mensaje: "",
     tipo: "",
   });
 
-  // 📦 Datos
+  // 📦 Data
   const [clientes, setClientes] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  // 🪟 Modales
+  // ➕ Modal crear
   const [mostrarModal, setMostrarModal] = useState(false);
+
+  // ✏️ Modal editar
+  const [mostrarModalEditar, setMostrarModalEditar] = useState(false);
 
   // 🆕 Nuevo cliente
   const [nuevoCliente, setNuevoCliente] = useState({
@@ -28,137 +33,146 @@ const Clientes = () => {
     direccion: "",
   });
 
-  // 📥 Cargar clientes
+  // ✏️ Cliente editando
+  const [clienteEditando, setClienteEditando] = useState({
+    id_cliente: "",
+    nombre: "",
+    telefono: "",
+    direccion: "",
+  });
+
+  // 📥 READ
   const cargarClientes = async () => {
-    try {
-      setCargando(true);
+    setCargando(true);
 
-      const { data, error } = await supabase
-        .from("Dim_Cliente")
-        .select("*")
-        .order("id_cliente", { ascending: true });
+    const { data, error } = await supabase
+      .from("Dim_Cliente")
+      .select("*")
+      .order("id_cliente", { ascending: true });
 
-      if (error) {
-        console.error("Error al cargar clientes:", error.message);
-        setToast({
-          mostrar: true,
-          mensaje: "Error al cargar clientes.",
-          tipo: "error",
-        });
-        return;
-      }
-
-      setClientes(data || []);
-    } catch (err) {
-      console.error("Excepción:", err.message);
-    } finally {
-      setCargando(false);
+    if (error) {
+      console.log(error.message);
+    } else {
+      setClientes(data);
     }
+
+    setCargando(false);
   };
 
-  // 🔄 Al iniciar
   useEffect(() => {
     cargarClientes();
   }, []);
 
-  // ⌨️ Inputs
+  // ✍️ INPUT CREAR
   const manejoCambioInput = (e) => {
     const { name, value } = e.target;
+
     setNuevoCliente((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  // ➕ Agregar cliente
+  // ➕ CREATE
   const agregarCliente = async () => {
-    try {
-      if (
-        !nuevoCliente.nombre.trim() ||
-        !nuevoCliente.telefono.trim() ||
-        !nuevoCliente.direccion.trim()
-      ) {
-        setToast({
-          mostrar: true,
-          mensaje: "Debe llenar todos los campos.",
-          tipo: "advertencia",
-        });
-        return;
-      }
+    const { error } = await supabase.from("Dim_Cliente").insert([
+      nuevoCliente
+    ]);
 
-      const { error } = await supabase.from("Dim_Cliente").insert([
-        {
-          nombre: nuevoCliente.nombre,
-          telefono: nuevoCliente.telefono,
-          direccion: nuevoCliente.direccion,
-        },
-      ]);
+    if (error) {
+      setToast({ mostrar: true, mensaje: "Error al registrar", tipo: "error" });
+    } else {
+      setToast({ mostrar: true, mensaje: "Cliente creado", tipo: "exito" });
 
-      if (error) {
-        console.error(error.message);
-        setToast({
-          mostrar: true,
-          mensaje: "Error al registrar cliente.",
-          tipo: "error",
-        });
-        return;
-      }
-
-      setToast({
-        mostrar: true,
-        mensaje: `Cliente "${nuevoCliente.nombre}" registrado.`,
-        tipo: "exito",
-      });
-
-      setNuevoCliente({
-        nombre: "",
-        telefono: "",
-        direccion: "",
-      });
-
+      setNuevoCliente({ nombre: "", telefono: "", direccion: "" });
       setMostrarModal(false);
       cargarClientes();
-    } catch (err) {
-      console.error(err.message);
+    }
+  };
+
+  // 🗑️ DELETE
+  const eliminarCliente = async (cliente) => {
+    const confirmar = window.confirm(`¿Eliminar a ${cliente.nombre}?`);
+    if (!confirmar) return;
+
+    const { error } = await supabase
+      .from("Dim_Cliente")
+      .delete()
+      .eq("id_cliente", cliente.id_cliente);
+
+    if (error) {
+      setToast({ mostrar: true, mensaje: "Error al eliminar", tipo: "error" });
+    } else {
+      setToast({ mostrar: true, mensaje: "Cliente eliminado", tipo: "exito" });
+      cargarClientes();
+    }
+  };
+
+  // ✏️ ABRIR EDIT
+  const abrirModalEdicion = (cliente) => {
+    setClienteEditando(cliente);
+    setMostrarModalEditar(true);
+  };
+
+  // ✍️ INPUT EDIT
+  const manejoCambioEdit = (e) => {
+    const { name, value } = e.target;
+
+    setClienteEditando((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // 💾 UPDATE
+  const actualizarCliente = async () => {
+    const { error } = await supabase
+      .from("Dim_Cliente")
+      .update({
+        nombre: clienteEditando.nombre,
+        telefono: clienteEditando.telefono,
+        direccion: clienteEditando.direccion,
+      })
+      .eq("id_cliente", clienteEditando.id_cliente);
+
+    if (error) {
+      setToast({ mostrar: true, mensaje: "Error al actualizar", tipo: "error" });
+    } else {
+      setToast({ mostrar: true, mensaje: "Cliente actualizado", tipo: "exito" });
+
+      setMostrarModalEditar(false);
+      cargarClientes();
     }
   };
 
   return (
     <Container className="mt-3">
-      {/* Encabezado */}
-      <Row className="align-items-center mb-3">
+
+      {/* HEADER */}
+      <Row className="mb-3">
         <Col>
-          <h3>
-            <i className="bi bi-people me-2"></i> Clientes
-          </h3>
+          <h3>Clientes</h3>
         </Col>
 
         <Col className="text-end">
           <Button onClick={() => setMostrarModal(true)}>
-            <i className="bi bi-plus-lg"></i>
-            <span className="ms-2">Nuevo Cliente</span>
+            Nuevo Cliente
           </Button>
         </Col>
       </Row>
 
-      <hr />
-
-      {/* Cargando */}
-      {cargando && (
-        <Row className="text-center my-5">
-          <Col>
-            <Spinner animation="border" />
-            <p>Cargando clientes...</p>
-          </Col>
-        </Row>
+      {/* LOADING */}
+      {cargando ? (
+        <Spinner animation="border" />
+      ) : (
+        <TablaCliente
+          clientes={clientes}
+          abrirModalEdicion={abrirModalEdicion}
+          abrirModalEliminacion={eliminarCliente}
+        />
       )}
 
-      {/* Tabla */}
-      {!cargando && (
-        <TablaCliente clientes={clientes} />
-      )}
-
-      {/* Modal */}
+      {/* MODAL CREAR */}
       <ModalRegistroCliente
         mostrarModal={mostrarModal}
         setMostrarModal={setMostrarModal}
@@ -167,13 +181,23 @@ const Clientes = () => {
         agregarCliente={agregarCliente}
       />
 
-      {/* Notificación */}
+      {/* MODAL EDITAR */}
+      <ModalEditarCliente
+        mostrarModalEditar={mostrarModalEditar}
+        setMostrarModalEditar={setMostrarModalEditar}
+        clienteEditando={clienteEditando}
+        manejoCambioEdit={manejoCambioEdit}
+        actualizarCliente={actualizarCliente}
+      />
+
+      {/* TOAST */}
       <NotificacionOperacion
         mostrar={toast.mostrar}
         mensaje={toast.mensaje}
         tipo={toast.tipo}
         onCerrar={() => setToast({ ...toast, mostrar: false })}
       />
+
     </Container>
   );
 };
