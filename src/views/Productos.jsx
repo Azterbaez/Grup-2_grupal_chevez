@@ -5,7 +5,7 @@ import ModalRegistroProducto from "../components/productos/ModalRegistroProducto
 
 import NotificacionOperacion from "../components/NotificacionOperacion";
 import TablaProducto from "../components/productos/TablaProducto";
-
+// finalizado //
 const Productos = () => {
   // 🔔 Notificaciones
   const [toast, setToast] = useState({
