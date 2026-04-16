@@ -1,15 +1,15 @@
-import React, {useState} from "react";
-import {useNavigate, useLocation} from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import logo from "../../assets/logo.png";
-import {supabase} from "../../assets/database/supabaseconfig";
+import { supabase } from "../../assets/database/supabaseconfig";
 
 const Encabezado = () => {
   const [mostrarMenu, setMostrarMenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-    const manejarToggle = () => setMostrarMenu(!mostrarMenu);
+  const manejarToggle = () => setMostrarMenu(!mostrarMenu);
 
   const manejarNavegacion = (ruta) => {
     navigate(ruta);
@@ -29,34 +29,19 @@ const Encabezado = () => {
     }
   };
 
- const esLogin = location.pathname === "/login";
- const esCatalogo = location.pathname === "/*"  && 
- localStorage.getItem("usuario-supabase") === null;
+  const esLogin = location.pathname === "/login";
 
- let contenidoMenu;
+  let contenidoMenu;
 
- if (esLogin) {
-  contenidoMenu = (
-    <Nav className="ms-auto pe-2">
-      <Nav.Link
-        onClick={() => manejarNavegacion("/login")}
-        className={mostrarMenu ? "color-texto-marca" : "text-white"}
-      >
-        <i className="bi-person-fill-lock me-2"></i>
-        Inicia sesión
-      </Nav.Link>
-    </Nav>
-  );
-} else {
-  if (esCatalogo) {
+  if (esLogin) {
     contenidoMenu = (
       <Nav className="ms-auto pe-2">
         <Nav.Link
-          onClick={() => manejarNavegacion("/catalogo")}
-          className={mostrarMenu ? "color-texto-marca" : "text-white"}
+          onClick={() => manejarNavegacion("/login")}
+          className="text-white"
         >
-          <i className="bi-images me-2"></i>
-          <strong>Catálogo</strong>
+          <i className="bi-person-fill-lock me-2"></i>
+          Inicia sesión
         </Nav.Link>
       </Nav>
     );
@@ -64,24 +49,17 @@ const Encabezado = () => {
     contenidoMenu = (
       <>
         <Nav className="ms-auto pe-2">
+
           <Nav.Link
-            onClick={() => manejarNavegacion("/")}
+            onClick={() => manejarNavegacion("/Clientes")}
             className={mostrarMenu ? "color-texto-marca" : "text-white"}
           >
-            {mostrarMenu ? <i className="bi-house-fill me-2"></i> : null}
-            <strong>Inicio</strong>
+            {mostrarMenu ? <i className="bi-people-fill me-2"></i> : null}
+            <strong>Clientes</strong>
           </Nav.Link>
 
           <Nav.Link
-            onClick={() => manejarNavegacion("/categorias")}
-            className={mostrarMenu ? "color-texto-marca" : "text-white"}
-          >
-            {mostrarMenu ? <i className="bi-bookmark-fill me-2"></i> : null}
-            <strong>Categorías</strong>
-          </Nav.Link>
-
-          <Nav.Link
-            onClick={() => manejarNavegacion("/productos")}
+            onClick={() => manejarNavegacion("/Productos")}
             className={mostrarMenu ? "color-texto-marca" : "text-white"}
           >
             {mostrarMenu ? <i className="bi-bag-heart-fill me-2"></i> : null}
@@ -89,44 +67,28 @@ const Encabezado = () => {
           </Nav.Link>
 
           <Nav.Link
-            onClick={() => manejarNavegacion("/proveedores")}
+            onClick={() => manejarNavegacion("/Tiempo")}
             className={mostrarMenu ? "color-texto-marca" : "text-white"}
           >
-            {mostrarMenu ? <i className="bi-truck me-2"></i> : null}
-            <strong>Proveedores</strong>
-          </Nav.Link>
-
-          {/* Opción para ir al catálogo público desde admin */}
-          <Nav.Link
-            onClick={() => manejarNavegacion("/catalogo")}
-            className={mostrarMenu ? "color-texto-marca" : "text-white"}
-          >
-            {mostrarMenu ? <i className="bi-images me-2"></i> : null}
-            <strong>Catálogo</strong>
+            {mostrarMenu ? <i className="bi-calendar-date-fill me-2"></i> : null}
+            <strong>Tiempo</strong>
           </Nav.Link>
 
           <hr />
 
-          {/* Icono cerrar sesión en barra superior */}
-          {mostrarMenu ? null : (
-            <Nav.Link
-              onClick={cerrarSesion}
-              className={mostrarMenu ? "color-texto-marca" : "text-white"}
-            >
+          {!mostrarMenu && (
+            <Nav.Link onClick={cerrarSesion} className="text-white">
               <i className="bi-box-arrow-right me-2"></i>
             </Nav.Link>
           )}
 
-          <hr />
         </Nav>
 
-        {/* Información de usuario y botón cerrar sesión */}
         {mostrarMenu && (
           <div className="mt-3 p-3 rounded bg-light text-dark">
             <p className="mb-2">
               <i className="bi-envelope-fill me-2"></i>
-              {localStorage.getItem("usuario-supabase")?.toLowerCase() ||
-                "Usuario"}
+              {localStorage.getItem("usuario-supabase")?.toLowerCase() || "Usuario"}
             </p>
 
             <button
@@ -141,53 +103,45 @@ const Encabezado = () => {
       </>
     );
   }
-}
- return (
-  <Navbar expand="md" fixed="top" className="color-navbar shadow-lg" variant="dark">
-    <Container>
-      <Navbar.Brand
-        onClick={() => manejarNavegacion(esCatalogo ? "/catalogo" : "/")}
-        className="text-white fw-bold d-flex align-items-center"
-        style={{ cursor: "pointer" }}
-      >
-        <img
-          alt=""
-          src={logo}
-          width="45"
-          height="45"
-          className="d-inline-block me-2"
-        />
-        <strong>
+
+  return (
+    <Navbar expand="md" fixed="top" className="color-navbar shadow-lg" variant="dark">
+      <Container>
+        <Navbar.Brand
+          onClick={() => manejarNavegacion("/Clientes")}
+          className="text-white fw-bold d-flex align-items-center"
+          style={{ cursor: "pointer" }}
+        >
+          <img
+            alt=""
+            src={logo}
+            width="45"
+            height="45"
+            className="d-inline-block me-2"
+          />
           <h4 className="mb-0">Don Chevez</h4>
-        </strong>
-      </Navbar.Brand>
+        </Navbar.Brand>
 
-      {/* Botón del menú */}
-      {!esLogin && (
-        <Navbar.Toggle
-          aria-controls="menu-offcanvas"
-          onClick={manejarToggle}
-        />
-      )}
+        {!esLogin && (
+          <Navbar.Toggle onClick={manejarToggle} />
+        )}
 
-      {/* Menú lateral */}
-      <Navbar.Offcanvas
-        id="menu-offcanvas"
-        placement="end"
-        show={mostrarMenu}
-        onHide={() => setMostrarMenu(false)}
-      >
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Menú</Offcanvas.Title>
-        </Offcanvas.Header>
+        <Navbar.Offcanvas
+          placement="end"
+          show={mostrarMenu}
+          onHide={() => setMostrarMenu(false)}
+        >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Menú</Offcanvas.Title>
+          </Offcanvas.Header>
 
-        <Offcanvas.Body>
-          {contenidoMenu}
-        </Offcanvas.Body>
-      </Navbar.Offcanvas>
-    </Container>
-  </Navbar>
-);
- };
+          <Offcanvas.Body>
+            {contenidoMenu}
+          </Offcanvas.Body>
+        </Navbar.Offcanvas>
+      </Container>
+    </Navbar>
+  );
+};
 
- export default Encabezado;
+export default Encabezado;
