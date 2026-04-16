@@ -8,6 +8,7 @@ const ModalRegistroCliente = ({
   setNuevoCliente,
   agregarCliente,
 }) => {
+
   const handleChange = (e) => {
     setNuevoCliente({
       ...nuevoCliente,
@@ -16,7 +17,11 @@ const ModalRegistroCliente = ({
   };
 
   return (
-    <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} centered>
+    <Modal
+      show={mostrarModal}
+      onHide={() => setMostrarModal(false)}
+      centered
+    >
       <Modal.Header closeButton>
         <Modal.Title>Nuevo Cliente</Modal.Title>
       </Modal.Header>
@@ -27,7 +32,7 @@ const ModalRegistroCliente = ({
             className="mb-2"
             name="nombre"
             placeholder="Nombre"
-            value={nuevoCliente.nombre}
+            value={nuevoCliente?.nombre || ""}
             onChange={handleChange}
           />
 
@@ -35,7 +40,7 @@ const ModalRegistroCliente = ({
             className="mb-2"
             name="telefono"
             placeholder="Teléfono"
-            value={nuevoCliente.telefono}
+            value={nuevoCliente?.telefono || ""}
             onChange={handleChange}
           />
 
@@ -43,15 +48,26 @@ const ModalRegistroCliente = ({
             className="mb-2"
             name="direccion"
             placeholder="Dirección"
-            value={nuevoCliente.direccion}
+            value={nuevoCliente?.direccion || ""}
             onChange={handleChange}
           />
         </Form>
       </Modal.Body>
 
       <Modal.Footer>
-        <Button onClick={() => setMostrarModal(false)}>Cancelar</Button>
-        <Button onClick={agregarCliente}>Guardar</Button>
+        <Button
+          variant="secondary"
+          onClick={() => setMostrarModal(false)}
+        >
+          Cancelar
+        </Button>
+
+        <Button
+          variant="primary"
+          onClick={agregarCliente}
+        >
+          Guardar
+        </Button>
       </Modal.Footer>
     </Modal>
   );

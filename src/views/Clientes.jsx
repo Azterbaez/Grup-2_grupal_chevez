@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Button, Spinner } from "react-bootstrap";
-import { supabase } from "../../src/assets/database/supabaseconfig";
+import { supabase } from "../assets/database/supabaseconfig";
 
-import TablaCliente from "../components/clientes/TablaCliente";
-import ModalRegistroCliente from "../components/clientes/ModalRegistroCliente";
-import ModalEditarCliente from "../components/clientes/ModalEditarCliente";
-import ModalEliminarCliente from "../components/clientes/ModalEliminarCliente";
+// 🔥 IMPORTS CORREGIDOS (carpeta "Clientes")
+import TablaCliente from "../components/Clientes/TablaCliente";
+import ModalRegistroCliente from "../components/Clientes/ModalRegistroCliente";
+import ModalEditarCliente from "../components/Clientes/ModalEditarCliente";
+import ModalEliminarCliente from "../components/Clientes/ModalEliminarCliente";
 
 const Clientes = () => {
 
