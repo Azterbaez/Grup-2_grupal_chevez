@@ -1,29 +1,90 @@
-import React, { useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Button , Spinner} from "react-bootstrap";
 import { supabase } from "../../src/assets/database/supabaseconfig";
-
 import ModalRegistroProducto from "../components/productos/ModalRegistroProducto";
+
 import NotificacionOperacion from "../components/NotificacionOperacion";
+import TablaProducto from "../components/productos/TablaProducto";
 
 const Productos = () => {
+  // 🔔 Notificaciones
   const [toast, setToast] = useState({
     mostrar: false,
     mensaje: "",
     tipo: "",
   });
 
+  // 📦 Datos
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
 
+  // 🪟 Modales
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
+  const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
 
+  // 🧠 Estados auxiliares
+  const [productoEditar, setProductoEditar] = useState(null);
+  const [productoAEliminar, setProductoAEliminar] = useState(null);
+
+  // 🆕 Nuevo producto
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: "",
     categoria: "",
     precio: "",
   });
 
-  // Manejo de inputs
+  // 📥 Cargar productos
+  const cargarProductos = async () => {
+    try {
+      setCargando(true);
+
+      const { data, error } = await supabase
+        .from("Dim_Producto")
+        .select("*")
+        .order("id_producto", { ascending: true });
+
+      if (error) {
+        console.error("Error al cargar productos:", error.message);
+        setToast({
+          mostrar: true,
+          mensaje: "Error al cargar productos.",
+          tipo: "error",
+        });
+        return;
+      }
+
+      setProductos(data || []);
+    } catch (err) {
+      console.error("Excepción al cargar productos:", err.message);
+      setToast({
+        mostrar: true,
+        mensaje: "Error inesperado al cargar productos.",
+        tipo: "error",
+      });
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  // 🔄 Ejecutar al iniciar
+  useEffect(() => {
+    cargarProductos();
+  }, []);
+
+  // ✏️ Abrir edición
+  const abrirModalEdicion = (producto) => {
+    setProductoEditar(producto);
+    setMostrarModalEdicion(true);
+  };
+
+  // 🗑️ Abrir eliminación
+  const abrirModalEliminacion = (producto) => {
+    setProductoAEliminar(producto);
+    setMostrarModalEliminacion(true);
+  };
+
+  // ⌨️ Inputs
   const manejoCambioInput = (e) => {
     const { name, value } = e.target;
     setNuevoProducto((prev) => ({
@@ -32,7 +93,7 @@ const Productos = () => {
     }));
   };
 
-  // Agregar producto
+  // ➕ Agregar producto
   const agregarProducto = async () => {
     try {
       if (
@@ -66,14 +127,12 @@ const Productos = () => {
         return;
       }
 
-      // Éxito
       setToast({
         mostrar: true,
         mensaje: `Producto "${nuevoProducto.nombre}" registrado exitosamente.`,
         tipo: "exito",
       });
 
-      // Limpiar formulario
       setNuevoProducto({
         nombre: "",
         categoria: "",
@@ -81,6 +140,7 @@ const Productos = () => {
       });
 
       setMostrarModal(false);
+      cargarProductos(); // 🔥 refresca la tabla
     } catch (err) {
       console.error("Excepción al agregar producto:", err.message);
       setToast({
@@ -93,8 +153,9 @@ const Productos = () => {
 
   return (
     <Container className="mt-3">
+      {/* Encabezado */}
       <Row className="align-items-center mb-3">
-        <Col className="d-flex align-items-center">
+        <Col>
           <h3 className="mb-0">
             <i className="bi bi-box-seam me-2"></i> Productos
           </h3>
@@ -110,7 +171,30 @@ const Productos = () => {
 
       <hr />
 
-      {/* Modal */}
+      {/* Cargando */}
+      {cargando && (
+        <Row className="text-center my-5">
+          <Col>
+            <Spinner animation="border" variant="success" />
+            <p className="mt-3 text-muted">Cargando productos...</p>
+          </Col>
+        </Row>
+      )}
+
+      {/* Tabla */}
+      {!cargando && productos.length > 0 && (
+        <Row>
+          <Col lg={12}>
+            <TablaProducto
+              productos={productos}
+              abrirModalEdicion={abrirModalEdicion}
+              abrirModalEliminacion={abrirModalEliminacion}
+            />
+          </Col>
+        </Row>
+      )}
+
+      {/* Modal registro */}
       <ModalRegistroProducto
         mostrarModal={mostrarModal}
         setMostrarModal={setMostrarModal}
