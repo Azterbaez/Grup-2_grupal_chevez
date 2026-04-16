@@ -5,9 +5,17 @@ const ModalEditarCliente = ({
   mostrarModalEditar,
   setMostrarModalEditar,
   clienteEditando,
-  manejoCambioEdit,
+  setClienteEditando,
   actualizarCliente,
 }) => {
+
+  const handleChange = (e) => {
+    setClienteEditando({
+      ...clienteEditando,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   return (
     <Modal show={mostrarModalEditar} onHide={() => setMostrarModalEditar(false)} centered>
       <Modal.Header closeButton>
@@ -20,32 +28,32 @@ const ModalEditarCliente = ({
             className="mb-2"
             name="nombre"
             value={clienteEditando.nombre}
-            onChange={manejoCambioEdit}
+            onChange={handleChange}
           />
 
           <Form.Control
             className="mb-2"
             name="telefono"
             value={clienteEditando.telefono}
-            onChange={manejoCambioEdit}
+            onChange={handleChange}
           />
 
           <Form.Control
             className="mb-2"
             name="direccion"
             value={clienteEditando.direccion}
-            onChange={manejoCambioEdit}
+            onChange={handleChange}
           />
         </Form>
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="secondary" onClick={() => setMostrarModalEditar(false)}>
+        <Button onClick={() => setMostrarModalEditar(false)}>
           Cancelar
         </Button>
 
-        <Button variant="primary" onClick={actualizarCliente}>
-          Guardar
+        <Button onClick={actualizarCliente}>
+          Guardar cambios
         </Button>
       </Modal.Footer>
     </Modal>

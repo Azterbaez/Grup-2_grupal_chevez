@@ -1,71 +1,47 @@
-import React, { useState, useEffect } from "react";
-import { Table, Spinner, Button } from "react-bootstrap";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import React from "react";
+import { Table, Button } from "react-bootstrap";
 
-const TablaCliente = ({
-  clientes,
-  abrirModalEdicion,
-  abrirModalEliminacion
-}) => {
-
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (clientes && clientes.length > 0) {
-      setLoading(false);
-    } else {
-      setLoading(true);
-    }
-  }, [clientes]);
-
+const TablaCliente = ({ clientes, abrirModalEdicion, abrirModalEliminar }) => {
   return (
-    <>
-      {loading ? (
-        <div className="text-center">
-          <h4>Cargando clientes...</h4>
-          <Spinner animation="border" variant="success" role="status" />
-        </div>
-      ) : (
-        <Table striped borderless hover responsive size="sm">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Teléfono</th>
-              <th>Dirección</th>
-              <th className="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {clientes.map((cliente) => (
-              <tr key={cliente.id_cliente}>
-                <td>{cliente.id_cliente}</td>
-                <td>{cliente.nombre}</td>
-                <td>{cliente.telefono}</td>
-                <td>{cliente.direccion}</td>
-                <td className="text-center">
-                  <Button
-                    variant="outline-warning"
-                    size="sm"
-                    className="m-1"
-                    onClick={() => abrirModalEdicion(cliente)}
-                  >
-                    <i className="bi bi-pencil"></i>
-                  </Button>
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => abrirModalEliminacion(cliente)}
-                  >
-                    <i className="bi bi-trash"></i>
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
-    </>
+    <Table striped hover responsive>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Dirección</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {clientes.map((c) => (
+          <tr key={c.id_cliente}>
+            <td>{c.id_cliente}</td>
+            <td>{c.nombre}</td>
+            <td>{c.telefono}</td>
+            <td>{c.direccion}</td>
+            <td>
+              <Button
+                variant="warning"
+                size="sm"
+                onClick={() => abrirModalEdicion(c)}
+              >
+                Editar
+              </Button>{" "}
+
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => abrirModalEliminar(c)}
+              >
+                Eliminar
+              </Button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
   );
 };
 
