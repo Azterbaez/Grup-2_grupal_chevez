@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Encabezado from "./components/navegacion/Encabezado";
 
 import Login from "./views/Login";
-import Clientes from "./views/Clientes";
+import clientes from "./views/Clientes";
 import Productos from "./views/Productos";
 import Tiempo from "./views/Tiempo";
 
