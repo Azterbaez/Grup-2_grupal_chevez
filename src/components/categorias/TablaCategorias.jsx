@@ -1,61 +1,61 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Spinner, Button } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const TablaDimTiempo = ({
-  tiempos,
+const TablaCategorias = ({
+  categorias,
   abrirModalEdicion,
   abrirModalEliminacion
 }) => {
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (tiempos && tiempos.length > 0) {
+    if (categorias && categorias.length > 0) {
       setLoading(false);
     } else {
       setLoading(true);
     }
-  }, [tiempos]);
+  }, [categorias]);
 
   return (
     <>
       {loading ? (
         <div className="text-center">
-          <h4>Cargando fechas...</h4>
-          <Spinner animation="border" variant="success" role="status" />
+          <h4>Cargando categoría...</h4>
+          <Spinner animation="border" variant="success" />
         </div>
       ) : (
         <Table striped borderless hover responsive size="sm">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Fecha</th>
-              <th>Mes</th>
-              <th>Año</th>
+              <th>Nombre</th>
+              <th className="d-none d-md-table-cell">Descripcion</th>
               <th className="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {tiempos.map((tiempo) => (
-              <tr key={tiempo.id_tiempo}>
-                <td>{tiempo.id_tiempo}</td>
-                <td>{tiempo.fecha}</td>
-                <td>{tiempo.mes}</td>
-                <td>{tiempo.anio}</td>
+            {categorias.map((categoria) => (
+              <tr key={categoria.id_categoria}>
+                <td>{categoria.id_categoria}</td>
+                <td>{categoria.nombre_categoria}</td>
+                <td className="d-none d-md-table-cell">
+                  {categoria.descripcion_categoria}
+                </td>
                 <td className="text-center">
                   <Button
                     variant="outline-warning"
                     size="sm"
                     className="m-1"
-                    onClick={() => abrirModalEdicion(tiempo)}
+                    onClick={() => abrirModalEdicion(categoria)}
                   >
                     <i className="bi bi-pencil"></i>
                   </Button>
+
                   <Button
                     variant="outline-danger"
                     size="sm"
-                    onClick={() => abrirModalEliminacion(tiempo)}
+                    onClick={() => abrirModalEliminacion(categoria)}
                   >
                     <i className="bi bi-trash"></i>
                   </Button>
@@ -69,4 +69,4 @@ const TablaDimTiempo = ({
   );
 };
 
-export default TablaDimTiempo;
+export default TablaCategorias;

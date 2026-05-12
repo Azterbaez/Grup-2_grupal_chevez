@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import logo from "../../assets/logo.png";
-import { supabase } from "../../assets/database/supabaseconfig";
+import { supabase } from "../../database/supabaseconfig";
 
 const Encabezado = () => {
   const [mostrarMenu, setMostrarMenu] = useState(false);
@@ -59,6 +59,14 @@ const Encabezado = () => {
           </Nav.Link>
 
           <Nav.Link
+            onClick={() => manejarNavegacion("/Categorias")}
+            className={mostrarMenu ? "color-texto-marca" : "text-white"}
+          >
+            {mostrarMenu ? <i className="bi-tags-fill me-2"></i> : null}
+            <strong>Categorías</strong>
+          </Nav.Link>
+
+          <Nav.Link
             onClick={() => manejarNavegacion("/Productos")}
             className={mostrarMenu ? "color-texto-marca" : "text-white"}
           >
@@ -67,11 +75,11 @@ const Encabezado = () => {
           </Nav.Link>
 
           <Nav.Link
-            onClick={() => manejarNavegacion("/Tiempo")}
+            onClick={() => manejarNavegacion("/Ventas")}
             className={mostrarMenu ? "color-texto-marca" : "text-white"}
           >
-            {mostrarMenu ? <i className="bi-calendar-date-fill me-2"></i> : null}
-            <strong>Tiempo</strong>
+            {mostrarMenu ? <i className="bi-cart-check-fill me-2"></i> : null}
+            <strong>Ventas</strong>
           </Nav.Link>
 
           <hr />

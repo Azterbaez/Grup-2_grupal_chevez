@@ -5,8 +5,8 @@ import Encabezado from "./components/navegacion/Encabezado";
 import Login from "./views/Login";
 import Clientes from "./views/Clientes";
 import Productos from "./views/Productos";
-import Tiempo from "./views/Tiempo";
-
+import Categorias from "./views/Categorias";
+import Ventas from "./views/Ventas";
 import RutaProtegida from "./components/rutas/RutasProtegida";
 import Pagina404 from "./views/pagina404";
 
@@ -17,10 +17,9 @@ const App = () => {
     <Router>
       <Routes>
 
-        {/* 🔓 Ruta pública */}
         <Route path="/login" element={<Login />} />
 
-        {/* 🔒 Rutas con Navbar */}
+
         <Route
           path="/*"
           element={
@@ -38,12 +37,31 @@ const App = () => {
                       </RutaProtegida>
                     }
                   />
+                  
+
+                  <Route
+                    path="/categorias"
+                    element={
+                      <RutaProtegida>
+                        <Categorias />
+                      </RutaProtegida>
+                    }
+                  />
 
                   <Route
                     path="/clientes"
                     element={
                       <RutaProtegida>
                         <Clientes />
+                      </RutaProtegida>
+                    }
+                  />
+
+                  <Route
+                    path="/ventas"
+                    element={
+                      <RutaProtegida>
+                        <Ventas />
                       </RutaProtegida>
                     }
                   />
@@ -57,14 +75,6 @@ const App = () => {
                     }
                   />
 
-                  <Route
-                    path="/Tiempo"
-                    element={
-                      <RutaProtegida>
-                        <Tiempo />
-                      </RutaProtegida>
-                    }
-                  />
 
                   {/* 404 */}
                   <Route path="*" element={<Pagina404 />} />
