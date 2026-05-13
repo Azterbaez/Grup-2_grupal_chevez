@@ -8,6 +8,8 @@ import {
     Col,
     Image,
     Alert,
+    Card,
+    Badge,
 } from "react-bootstrap";
 
 import { supabase } from "../../database/supabaseconfig";
@@ -28,10 +30,6 @@ const ModalRegistroVenta = ({
         precio: 0,
         total: 0,
     });
-
-    // ==========================
-    // CARGAR PRODUCTOS
-    // ==========================
 
     useEffect(() => {
 
@@ -62,18 +60,10 @@ const ModalRegistroVenta = ({
 
     };
 
-    // ==========================
-    // PRODUCTO SELECCIONADO
-    // ==========================
-
     const productoSeleccionado = productos.find(
         (producto) =>
             producto.id_producto === Number(formulario.id_producto)
     );
-
-    // ==========================
-    // CAMBIAR PRODUCTO
-    // ==========================
 
     const manejarProducto = (e) => {
 
@@ -94,10 +84,6 @@ const ModalRegistroVenta = ({
 
     };
 
-    // ==========================
-    // CAMBIAR CANTIDAD
-    // ==========================
-
     const manejarCantidad = (e) => {
 
         const cantidad = Number(e.target.value) || 1;
@@ -109,10 +95,6 @@ const ModalRegistroVenta = ({
         }));
 
     };
-
-    // ==========================
-    // GUARDAR VENTA
-    // ==========================
 
     const guardarVenta = async () => {
 
@@ -152,10 +134,6 @@ const ModalRegistroVenta = ({
 
             if (error) throw error;
 
-            // ==========================
-            // ACTUALIZAR STOCK
-            // ==========================
-
             if (productoSeleccionado?.stock !== undefined) {
 
                 const nuevoStock =
@@ -173,10 +151,6 @@ const ModalRegistroVenta = ({
                     );
 
             }
-
-            // ==========================
-            // LIMPIAR FORM
-            // ==========================
 
             setFormulario({
                 id_producto: "",
@@ -217,19 +191,28 @@ const ModalRegistroVenta = ({
             size="lg"
         >
 
-            <Modal.Header closeButton>
+            <Modal.Header
+                closeButton
+                className="border-0 pb-0"
+            >
 
-                <Modal.Title>
-                    🧾 Registrar Venta
+                <Modal.Title className="fw-bold text-success">
+                    <i className="bi bi-cart-check me-2"></i>
+                    Registrar Venta
                 </Modal.Title>
 
             </Modal.Header>
 
-            <Modal.Body>
+            <Modal.Body className="pt-2">
 
                 {errorFormulario && (
 
-                    <Alert variant="danger">
+                    <Alert
+                        variant="danger"
+                        className="rounded-3 shadow-sm"
+                    >
+
+                        <i className="bi bi-exclamation-circle me-2"></i>
 
                         {errorFormulario}
 
@@ -241,47 +224,71 @@ const ModalRegistroVenta = ({
 
                     {/* IMAGEN */}
 
-                    <Col md={5} className="text-center">
+                    <Col md={5}>
 
-                        <div
-                            className="border rounded-4 overflow-hidden bg-light mx-auto"
-                            style={{
-                                width: "220px",
-                                height: "220px",
-                            }}
-                        >
+                        <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
 
-                            {productoSeleccionado?.url_imagen ? (
+                            <div
+                                className="bg-light d-flex align-items-center justify-content-center"
+                                style={{
+                                    height: "320px",
+                                }}
+                            >
 
-                                <Image
-                                    src={
-                                        productoSeleccionado.url_imagen
-                                    }
-                                    fluid
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "cover",
-                                    }}
-                                />
+                                {productoSeleccionado?.url_imagen ? (
 
-                            ) : (
-
-                                <div className="d-flex align-items-center justify-content-center h-100">
-
-                                    <span
+                                    <Image
+                                        src={
+                                            productoSeleccionado.url_imagen
+                                        }
+                                        fluid
                                         style={{
-                                            fontSize: "5rem",
+                                            width: "100%",
+                                            height: "100%",
+                                            objectFit: "cover",
                                         }}
-                                    >
-                                        📦
-                                    </span>
+                                    />
 
-                                </div>
+                                ) : (
+
+                                    <div className="text-center">
+
+                                        <i
+                                            className="bi bi-image text-muted"
+                                            style={{
+                                                fontSize: "5rem",
+                                            }}
+                                        ></i>
+
+                                        <p className="text-muted mt-2">
+                                            Vista previa
+                                        </p>
+
+                                    </div>
+
+                                )}
+
+                            </div>
+
+                            {productoSeleccionado && (
+
+                                <Card.Body>
+
+                                    <h5 className="fw-bold">
+                                        {
+                                            productoSeleccionado.nombre_producto
+                                        }
+                                    </h5>
+
+                                    <Badge bg="success">
+                                        Producto seleccionado
+                                    </Badge>
+
+                                </Card.Body>
 
                             )}
 
-                        </div>
+                        </Card>
 
                     </Col>
 
@@ -289,100 +296,123 @@ const ModalRegistroVenta = ({
 
                     <Col md={7}>
 
-                        <Form>
+                        <Card className="border-0 shadow-sm rounded-4">
 
-                            {/* PRODUCTO */}
+                            <Card.Body>
 
-                            <Form.Group className="mb-4">
+                                <Form>
 
-                                <Form.Label className="fw-semibold">
-                                    Producto
-                                </Form.Label>
+                                    {/* PRODUCTO */}
 
-                                <Form.Select
-                                    value={formulario.id_producto}
-                                    onChange={manejarProducto}
-                                    size="lg"
-                                >
+                                    <Form.Group className="mb-4">
 
-                                    <option value="">
-                                        Selecciona un producto
-                                    </option>
+                                        <Form.Label className="fw-semibold">
+                                            Producto
+                                        </Form.Label>
 
-                                    {productos.map((producto) => (
-
-                                        <option
-                                            key={producto.id_producto}
-                                            value={producto.id_producto}
+                                        <Form.Select
+                                            value={formulario.id_producto}
+                                            onChange={manejarProducto}
+                                            size="lg"
+                                            className="shadow-sm"
                                         >
 
-                                            {producto.nombre_producto}
-                                            {" - "}
-                                            C${" "}
-                                            {parseFloat(
-                                                producto.precio_venta || 0
-                                            ).toFixed(2)}
+                                            <option value="">
+                                                Selecciona un producto
+                                            </option>
 
-                                        </option>
+                                            {productos.map((producto) => (
 
-                                    ))}
+                                                <option
+                                                    key={producto.id_producto}
+                                                    value={producto.id_producto}
+                                                >
 
-                                </Form.Select>
+                                                    {producto.nombre_producto}
+                                                    {" - "}
+                                                    C${" "}
+                                                    {parseFloat(
+                                                        producto.precio_venta || 0
+                                                    ).toFixed(2)}
 
-                            </Form.Group>
+                                                </option>
 
-                            {/* CANTIDAD */}
+                                            ))}
 
-                            <Form.Group className="mb-4">
+                                        </Form.Select>
 
-                                <Form.Label className="fw-semibold">
-                                    Cantidad
-                                </Form.Label>
+                                    </Form.Group>
 
-                                <Form.Control
-                                    type="number"
-                                    min="1"
-                                    value={formulario.cantidad}
-                                    onChange={manejarCantidad}
-                                    size="lg"
-                                />
+                                    {/* CANTIDAD */}
 
-                            </Form.Group>
+                                    <Form.Group className="mb-4">
 
-                            {/* PRECIO */}
+                                        <Form.Label className="fw-semibold">
+                                            Cantidad
+                                        </Form.Label>
 
-                            <Form.Group className="mb-4">
+                                        <Form.Control
+                                            type="number"
+                                            min="1"
+                                            value={formulario.cantidad}
+                                            onChange={manejarCantidad}
+                                            size="lg"
+                                            className="shadow-sm"
+                                        />
 
-                                <Form.Label className="fw-semibold">
-                                    Precio Unitario
-                                </Form.Label>
+                                    </Form.Group>
 
-                                <Form.Control
-                                    value={`C$ ${parseFloat(formulario.precio || 0).toFixed(2)}`}
-                                    disabled
-                                    size="lg"
-                                />
+                                    <Row>
 
-                            </Form.Group>
+                                        {/* PRECIO */}
 
-                            {/* TOTAL */}
+                                        <Col md={6}>
 
-                            <Form.Group>
+                                            <Form.Group className="mb-4">
 
-                                <Form.Label className="fw-semibold">
-                                    Total
-                                </Form.Label>
+                                                <Form.Label className="fw-semibold">
+                                                    Precio Unitario
+                                                </Form.Label>
 
-                                <Form.Control
-                                    value={`C$ ${parseFloat(formulario.total || 0).toFixed(2)}`}
-                                    disabled
-                                    size="lg"
-                                    className="fw-bold text-success"
-                                />
+                                                <Form.Control
+                                                    value={`C$ ${parseFloat(formulario.precio || 0).toFixed(2)}`}
+                                                    disabled
+                                                    size="lg"
+                                                    className="fw-semibold bg-light"
+                                                />
 
-                            </Form.Group>
+                                            </Form.Group>
 
-                        </Form>
+                                        </Col>
+
+                                        {/* TOTAL */}
+
+                                        <Col md={6}>
+
+                                            <Form.Group className="mb-4">
+
+                                                <Form.Label className="fw-semibold">
+                                                    Total
+                                                </Form.Label>
+
+                                                <Form.Control
+                                                    value={`C$ ${parseFloat(formulario.total || 0).toFixed(2)}`}
+                                                    disabled
+                                                    size="lg"
+                                                    className="fw-bold text-success bg-light"
+                                                />
+
+                                            </Form.Group>
+
+                                        </Col>
+
+                                    </Row>
+
+                                </Form>
+
+                            </Card.Body>
+
+                        </Card>
 
                     </Col>
 
@@ -390,10 +420,10 @@ const ModalRegistroVenta = ({
 
             </Modal.Body>
 
-            <Modal.Footer>
+            <Modal.Footer className="border-0 pt-0">
 
                 <Button
-                    variant="secondary"
+                    variant="outline-secondary"
                     onClick={() =>
                         setMostrarModal(false)
                     }
@@ -405,6 +435,7 @@ const ModalRegistroVenta = ({
                     variant="success"
                     onClick={guardarVenta}
                     disabled={cargando}
+                    className="px-4"
                 >
 
                     {cargando ? (
@@ -422,7 +453,10 @@ const ModalRegistroVenta = ({
 
                     ) : (
 
-                        "Guardar Venta"
+                        <>
+                            <i className="bi bi-check-circle me-2"></i>
+                            Guardar Venta
+                        </>
 
                     )}
 
