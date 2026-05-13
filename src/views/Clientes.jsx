@@ -6,6 +6,7 @@ import {
   Col,
   Button,
   Spinner,
+  Pagination,
 } from "react-bootstrap";
 
 import Swal from "sweetalert2";
@@ -28,17 +29,29 @@ const Clientes = () => {
 
   const [textoBusqueda, setTextoBusqueda] = useState("");
 
+  // PAGINACIÓN
+
+  const [paginaActual, setPaginaActual] = useState(1);
+
+  const clientesPorPagina = 5;
+
+  // MODALES
+
   const [mostrarModal, setMostrarModal] = useState(false);
 
   const [mostrarModalEditar, setMostrarModalEditar] = useState(false);
 
   const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
 
+  // NUEVO CLIENTE
+
   const [nuevoCliente, setNuevoCliente] = useState({
     nombre_cliente: "",
     telefono: "",
     direccion: "",
   });
+
+  // CLIENTE EDITANDO
 
   const [clienteEditando, setClienteEditando] = useState({
     id_cliente: "",
@@ -47,9 +60,13 @@ const Clientes = () => {
     direccion: "",
   });
 
+  // CLIENTE SELECCIONADO
+
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
 
+  // ==========================
   // CARGAR CLIENTES
+  // ==========================
 
   const cargarClientes = async () => {
 
@@ -67,11 +84,18 @@ const Clientes = () => {
       if (error) throw error;
 
       setClientes(data || []);
+
       setClientesFiltrados(data || []);
 
     } catch (error) {
 
       console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudieron cargar los clientes",
+      });
 
     } finally {
 
@@ -87,7 +111,9 @@ const Clientes = () => {
 
   }, []);
 
+  // ==========================
   // BUSCADOR
+  // ==========================
 
   useEffect(() => {
 
@@ -130,9 +156,34 @@ const Clientes = () => {
 
     }
 
+    setPaginaActual(1);
+
   }, [textoBusqueda, clientes]);
 
+  // ==========================
+  // PAGINACIÓN
+  // ==========================
+
+  const indiceUltimoCliente =
+    paginaActual * clientesPorPagina;
+
+  const indicePrimerCliente =
+    indiceUltimoCliente - clientesPorPagina;
+
+  const clientesActuales =
+    clientesFiltrados.slice(
+      indicePrimerCliente,
+      indiceUltimoCliente
+    );
+
+  const totalPaginas = Math.ceil(
+    clientesFiltrados.length /
+      clientesPorPagina
+  );
+
+  // ==========================
   // REGISTRAR CLIENTE
+  // ==========================
 
   const agregarCliente = async () => {
 
@@ -177,11 +228,19 @@ const Clientes = () => {
 
       console.error(error);
 
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo registrar",
+      });
+
     }
 
   };
 
+  // ==========================
   // ABRIR MODAL EDITAR
+  // ==========================
 
   const abrirModalEdicion = (cliente) => {
 
@@ -191,7 +250,9 @@ const Clientes = () => {
 
   };
 
+  // ==========================
   // ACTUALIZAR CLIENTE
+  // ==========================
 
   const actualizarCliente = async () => {
 
@@ -232,11 +293,19 @@ const Clientes = () => {
 
       console.error(error);
 
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar",
+      });
+
     }
 
   };
 
+  // ==========================
   // ABRIR MODAL ELIMINAR
+  // ==========================
 
   const abrirModalEliminar = (cliente) => {
 
@@ -246,7 +315,9 @@ const Clientes = () => {
 
   };
 
+  // ==========================
   // ELIMINAR CLIENTE
+  // ==========================
 
   const eliminarCliente = async () => {
 
@@ -278,6 +349,12 @@ const Clientes = () => {
 
       console.error(error);
 
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo eliminar",
+      });
+
     }
 
   };
@@ -285,6 +362,8 @@ const Clientes = () => {
   return (
 
     <Container className="mt-4">
+
+      {/* HEADER */}
 
       <Row className="align-items-center mb-4">
 
@@ -310,6 +389,8 @@ const Clientes = () => {
 
       </Row>
 
+      {/* BUSCADOR */}
+
       <Row className="mb-4">
 
         <Col md={6}>
@@ -326,6 +407,8 @@ const Clientes = () => {
 
       </Row>
 
+      {/* TABLA */}
+
       {cargando ? (
 
         <div className="text-center py-5">
@@ -336,17 +419,75 @@ const Clientes = () => {
 
       ) : (
 
-        <TablaCliente
-          clientes={clientesFiltrados}
-          abrirModalEdicion={
-            abrirModalEdicion
-          }
-          abrirModalEliminar={
-            abrirModalEliminar
-          }
-        />
+        <>
+
+          <TablaCliente
+            clientes={clientesActuales}
+            abrirModalEdicion={
+              abrirModalEdicion
+            }
+            abrirModalEliminar={
+              abrirModalEliminar
+            }
+          />
+
+          {/* PAGINACIÓN */}
+
+          <div className="d-flex justify-content-center mt-4">
+
+            <Pagination>
+
+              <Pagination.Prev
+                disabled={paginaActual === 1}
+                onClick={() =>
+                  setPaginaActual(
+                    paginaActual - 1
+                  )
+                }
+              />
+
+              {[...Array(totalPaginas)].map(
+                (_, index) => (
+
+                  <Pagination.Item
+                    key={index}
+                    active={
+                      paginaActual ===
+                      index + 1
+                    }
+                    onClick={() =>
+                      setPaginaActual(
+                        index + 1
+                      )
+                    }
+                  >
+                    {index + 1}
+                  </Pagination.Item>
+
+                )
+              )}
+
+              <Pagination.Next
+                disabled={
+                  paginaActual ===
+                  totalPaginas
+                }
+                onClick={() =>
+                  setPaginaActual(
+                    paginaActual + 1
+                  )
+                }
+              />
+
+            </Pagination>
+
+          </div>
+
+        </>
 
       )}
+
+      {/* MODALES */}
 
       <ModalRegistroCliente
         mostrarModal={mostrarModal}
