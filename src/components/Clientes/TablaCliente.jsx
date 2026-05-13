@@ -1,56 +1,121 @@
 import React from "react";
-import { Table, Button } from "react-bootstrap";
 
-const TablaCliente = ({ clientes = [], abrirModalEdicion, abrirModalEliminar }) => {
+import {
+  Table,
+  Button,
+  Badge,
+} from "react-bootstrap";
+
+const TablaCliente = ({
+  clientes = [],
+  abrirModalEdicion,
+  abrirModalEliminar,
+}) => {
+
   return (
-    <Table striped hover responsive>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Teléfono</th>
-          <th>Dirección</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
 
-      <tbody>
-        {clientes.length === 0 ? (
-          <tr>
-            <td colSpan="5" className="text-center">
-              No hay clientes registrados
-            </td>
+    <div className="table-responsive shadow-sm rounded">
+
+      <Table
+        striped
+        bordered
+        hover
+        className="align-middle"
+      >
+
+        <thead className="table-dark">
+
+          <tr className="text-center">
+
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Dirección</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+
           </tr>
-        ) : (
-          clientes.map((c) => (
-            <tr key={c.id_cliente}>
-              <td>{c.id_cliente}</td>
-              <td>{c.nombre}</td>
-              <td>{c.telefono}</td>
-              <td>{c.direccion}</td>
-              <td>
-                <Button
-                  variant="warning"
-                  size="sm"
-                  onClick={() => abrirModalEdicion(c)}
-                >
-                  Editar
-                </Button>{" "}
 
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => abrirModalEliminar(c)}
-                >
-                  Eliminar
-                </Button>
+        </thead>
+
+        <tbody>
+
+          {clientes.length === 0 ? (
+
+            <tr>
+
+              <td
+                colSpan="6"
+                className="text-center py-4"
+              >
+                No hay clientes registrados
               </td>
+
             </tr>
-          ))
-        )}
-      </tbody>
-    </Table>
+
+          ) : (
+
+            clientes.map((c) => (
+
+              <tr key={c.id_cliente}>
+
+                <td className="text-center">
+                  {c.id_cliente}
+                </td>
+
+                <td>{c.nombre_cliente}</td>
+
+                <td>{c.telefono}</td>
+
+                <td>{c.direccion}</td>
+
+                <td className="text-center">
+
+                  <Badge bg="success">
+                    Activo
+                  </Badge>
+
+                </td>
+
+                <td className="text-center">
+
+                  <Button
+                    variant="warning"
+                    size="sm"
+                    className="me-2"
+                    onClick={() =>
+                      abrirModalEdicion(c)
+                    }
+                  >
+                    ✏ Editar
+                  </Button>
+
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() =>
+                      abrirModalEliminar(c)
+                    }
+                  >
+                    🗑 Eliminar
+                  </Button>
+
+                </td>
+
+              </tr>
+
+            ))
+
+          )}
+
+        </tbody>
+
+      </Table>
+
+    </div>
+
   );
+
 };
 
 export default TablaCliente;
