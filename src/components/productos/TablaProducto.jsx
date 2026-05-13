@@ -19,6 +19,17 @@ const TablaProducto = ({
     }
   }, [productos]);
 
+  const obtenerNombreCategoria = (idCategoria) => {
+
+    const categoria = categorias.find(
+      (cat) => cat.id_categoria === Number(idCategoria)
+    );
+
+    return categoria
+      ? categoria.nombre_categoria
+      : "Sin categoría";
+  };
+
   return (
     <>
       {loading ? (
@@ -42,9 +53,16 @@ const TablaProducto = ({
             {productos.map((producto) => (
               <tr key={producto.id_producto}>
                 <td>{producto.id_producto}</td>
+
                 <td>{producto.nombre_producto}</td>
-                <td>{producto.categoria_producto}</td>
-                <td>C$ {producto.precio_venta}</td>
+
+                <td>
+                  {obtenerNombreCategoria(producto.categoria_producto)}
+                </td>
+
+                <td>
+                  C$ {producto.precio_venta}
+                </td>
 
                 <td className="text-center">
                   <Button
