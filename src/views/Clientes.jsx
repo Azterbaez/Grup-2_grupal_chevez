@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
+
 import {
   Container,
   Row,
   Col,
   Button,
   Spinner,
+  Pagination,
 } from "react-bootstrap";
+
+import Swal from "sweetalert2";
 
 import { supabase } from "../database/supabaseconfig";
 
@@ -18,28 +22,45 @@ import CuadroBusquedas from "../components/busquedas/cuadroBusquedas";
 const Clientes = () => {
 
   const [clientes, setClientes] = useState([]);
+
   const [clientesFiltrados, setClientesFiltrados] = useState([]);
 
   const [cargando, setCargando] = useState(true);
 
   const [textoBusqueda, setTextoBusqueda] = useState("");
 
+  // PAGINACIÓN
+
+  const [paginaActual, setPaginaActual] = useState(1);
+
+  const clientesPorPagina = 5;
+
+  // MODALES
+
   const [mostrarModal, setMostrarModal] = useState(false);
+
   const [mostrarModalEditar, setMostrarModalEditar] = useState(false);
+
   const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
+
+  // NUEVO CLIENTE
 
   const [nuevoCliente, setNuevoCliente] = useState({
     nombre_cliente: "",
-    telefono_cliente: "",
-    direccion_cliente: "",
+    telefono: "",
+    direccion: "",
   });
+
+  // CLIENTE EDITANDO
 
   const [clienteEditando, setClienteEditando] = useState({
     id_cliente: "",
     nombre_cliente: "",
-    telefono_cliente: "",
-    direccion_cliente: "",
+    telefono: "",
+    direccion: "",
   });
+
+  // CLIENTE SELECCIONADO
 
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
 
@@ -56,16 +77,25 @@ const Clientes = () => {
       const { data, error } = await supabase
         .from("clientes")
         .select("*")
-        .order("id_cliente", { ascending: true });
+        .order("id_cliente", {
+          ascending: true,
+        });
 
       if (error) throw error;
 
       setClientes(data || []);
+
       setClientesFiltrados(data || []);
 
     } catch (error) {
 
-      console.error("Error al cargar clientes:", error);
+      console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudieron cargar los clientes",
+      });
 
     } finally {
 
@@ -76,7 +106,9 @@ const Clientes = () => {
   };
 
   useEffect(() => {
+
     cargarClientes();
+
   }, []);
 
   // ==========================
@@ -91,26 +123,66 @@ const Clientes = () => {
 
     } else {
 
-      const texto = textoBusqueda.toLowerCase();
+      const texto =
+        textoBusqueda.toLowerCase();
 
-      const filtrados = clientes.filter((cliente) => {
+      const filtrados = clientes.filter(
+        (cliente) => {
 
-        return (
-          cliente.nombre_cliente?.toLowerCase().includes(texto) ||
-          cliente.telefono_cliente?.toLowerCase().includes(texto) ||
-          cliente.direccion_cliente?.toLowerCase().includes(texto)
-        );
+          return (
 
-      });
+            cliente.nombre_cliente
+              ?.toLowerCase()
+              .includes(texto)
+
+            ||
+
+            cliente.telefono
+              ?.toLowerCase()
+              .includes(texto)
+
+            ||
+
+            cliente.direccion
+              ?.toLowerCase()
+              .includes(texto)
+
+          );
+
+        }
+      );
 
       setClientesFiltrados(filtrados);
 
     }
 
+    setPaginaActual(1);
+
   }, [textoBusqueda, clientes]);
 
   // ==========================
-  // CREATE
+  // PAGINACIÓN
+  // ==========================
+
+  const indiceUltimoCliente =
+    paginaActual * clientesPorPagina;
+
+  const indicePrimerCliente =
+    indiceUltimoCliente - clientesPorPagina;
+
+  const clientesActuales =
+    clientesFiltrados.slice(
+      indicePrimerCliente,
+      indiceUltimoCliente
+    );
+
+  const totalPaginas = Math.ceil(
+    clientesFiltrados.length /
+      clientesPorPagina
+  );
+
+  // ==========================
+  // REGISTRAR CLIENTE
   // ==========================
 
   const agregarCliente = async () => {
@@ -121,18 +193,31 @@ const Clientes = () => {
         .from("clientes")
         .insert([
           {
-            nombre_cliente: nuevoCliente.nombre_cliente,
-            telefono_cliente: nuevoCliente.telefono_cliente,
-            direccion_cliente: nuevoCliente.direccion_cliente,
+            nombre_cliente:
+              nuevoCliente.nombre_cliente,
+
+            telefono:
+              nuevoCliente.telefono,
+
+            direccion:
+              nuevoCliente.direccion,
           },
         ]);
 
       if (error) throw error;
 
+      Swal.fire({
+        icon: "success",
+        title: "Cliente registrado",
+        text: "Registro exitoso",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       setNuevoCliente({
         nombre_cliente: "",
-        telefono_cliente: "",
-        direccion_cliente: "",
+        telefono: "",
+        direccion: "",
       });
 
       setMostrarModal(false);
@@ -141,7 +226,13 @@ const Clientes = () => {
 
     } catch (error) {
 
-      console.error("Error al registrar cliente:", error);
+      console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo registrar",
+      });
 
     }
 
@@ -160,7 +251,7 @@ const Clientes = () => {
   };
 
   // ==========================
-  // UPDATE
+  // ACTUALIZAR CLIENTE
   // ==========================
 
   const actualizarCliente = async () => {
@@ -170,13 +261,29 @@ const Clientes = () => {
       const { error } = await supabase
         .from("clientes")
         .update({
-          nombre_cliente: clienteEditando.nombre_cliente,
-          telefono_cliente: clienteEditando.telefono_cliente,
-          direccion_cliente: clienteEditando.direccion_cliente,
+          nombre_cliente:
+            clienteEditando.nombre_cliente,
+
+          telefono:
+            clienteEditando.telefono,
+
+          direccion:
+            clienteEditando.direccion,
         })
-        .eq("id_cliente", clienteEditando.id_cliente);
+        .eq(
+          "id_cliente",
+          clienteEditando.id_cliente
+        );
 
       if (error) throw error;
+
+      Swal.fire({
+        icon: "success",
+        title: "Cliente actualizado",
+        text: "Cambios guardados",
+        timer: 2000,
+        showConfirmButton: false,
+      });
 
       setMostrarModalEditar(false);
 
@@ -184,7 +291,13 @@ const Clientes = () => {
 
     } catch (error) {
 
-      console.error("Error al actualizar cliente:", error);
+      console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar",
+      });
 
     }
 
@@ -203,7 +316,7 @@ const Clientes = () => {
   };
 
   // ==========================
-  // DELETE
+  // ELIMINAR CLIENTE
   // ==========================
 
   const eliminarCliente = async () => {
@@ -213,9 +326,20 @@ const Clientes = () => {
       const { error } = await supabase
         .from("clientes")
         .delete()
-        .eq("id_cliente", clienteSeleccionado.id_cliente);
+        .eq(
+          "id_cliente",
+          clienteSeleccionado.id_cliente
+        );
 
       if (error) throw error;
+
+      Swal.fire({
+        icon: "success",
+        title: "Cliente eliminado",
+        text: "Registro eliminado",
+        timer: 2000,
+        showConfirmButton: false,
+      });
 
       setMostrarModalEliminar(false);
 
@@ -223,7 +347,13 @@ const Clientes = () => {
 
     } catch (error) {
 
-      console.error("Error al eliminar cliente:", error);
+      console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo eliminar",
+      });
 
     }
 
@@ -231,39 +361,39 @@ const Clientes = () => {
 
   return (
 
-    <Container className="mt-3">
+    <Container className="mt-4">
 
       {/* HEADER */}
 
-      <Row className="align-items-center mb-3">
+      <Row className="align-items-center mb-4">
 
         <Col>
 
-          <h3 className="mb-0">
-            👥 Clientes
-          </h3>
+          <h2 className="fw-bold">
+            👥 Gestión de Clientes
+          </h2>
 
         </Col>
 
         <Col className="text-end">
 
           <Button
-            onClick={() => setMostrarModal(true)}
+            onClick={() =>
+              setMostrarModal(true)
+            }
           >
-            Nuevo Cliente
+            ➕ Nuevo Cliente
           </Button>
 
         </Col>
 
       </Row>
 
-      <hr />
-
       {/* BUSCADOR */}
 
       <Row className="mb-4">
 
-        <Col md={6} lg={5}>
+        <Col md={6}>
 
           <CuadroBusquedas
             textoBusqueda={textoBusqueda}
@@ -277,30 +407,83 @@ const Clientes = () => {
 
       </Row>
 
-      {/* LOADING */}
+      {/* TABLA */}
 
       {cargando ? (
 
         <div className="text-center py-5">
 
-          <Spinner
-            animation="border"
-            variant="primary"
-          />
-
-          <p className="mt-3 text-muted">
-            Cargando clientes...
-          </p>
+          <Spinner animation="border" />
 
         </div>
 
       ) : (
 
-        <TablaCliente
-          clientes={clientesFiltrados}
-          abrirModalEdicion={abrirModalEdicion}
-          abrirModalEliminar={abrirModalEliminar}
-        />
+        <>
+
+          <TablaCliente
+            clientes={clientesActuales}
+            abrirModalEdicion={
+              abrirModalEdicion
+            }
+            abrirModalEliminar={
+              abrirModalEliminar
+            }
+          />
+
+          {/* PAGINACIÓN */}
+
+          <div className="d-flex justify-content-center mt-4">
+
+            <Pagination>
+
+              <Pagination.Prev
+                disabled={paginaActual === 1}
+                onClick={() =>
+                  setPaginaActual(
+                    paginaActual - 1
+                  )
+                }
+              />
+
+              {[...Array(totalPaginas)].map(
+                (_, index) => (
+
+                  <Pagination.Item
+                    key={index}
+                    active={
+                      paginaActual ===
+                      index + 1
+                    }
+                    onClick={() =>
+                      setPaginaActual(
+                        index + 1
+                      )
+                    }
+                  >
+                    {index + 1}
+                  </Pagination.Item>
+
+                )
+              )}
+
+              <Pagination.Next
+                disabled={
+                  paginaActual ===
+                  totalPaginas
+                }
+                onClick={() =>
+                  setPaginaActual(
+                    paginaActual + 1
+                  )
+                }
+              />
+
+            </Pagination>
+
+          </div>
+
+        </>
 
       )}
 
@@ -315,17 +498,29 @@ const Clientes = () => {
       />
 
       <ModalEditarCliente
-        mostrarModalEditar={mostrarModalEditar}
-        setMostrarModalEditar={setMostrarModalEditar}
+        mostrarModalEditar={
+          mostrarModalEditar
+        }
+        setMostrarModalEditar={
+          setMostrarModalEditar
+        }
         clienteEditando={clienteEditando}
-        setClienteEditando={setClienteEditando}
+        setClienteEditando={
+          setClienteEditando
+        }
         actualizarCliente={actualizarCliente}
       />
 
       <ModalEliminarCliente
-        mostrarModalEliminar={mostrarModalEliminar}
-        setMostrarModalEliminar={setMostrarModalEliminar}
-        clienteSeleccionado={clienteSeleccionado}
+        mostrarModalEliminar={
+          mostrarModalEliminar
+        }
+        setMostrarModalEliminar={
+          setMostrarModalEliminar
+        }
+        clienteSeleccionado={
+          clienteSeleccionado
+        }
         eliminarCliente={eliminarCliente}
       />
 

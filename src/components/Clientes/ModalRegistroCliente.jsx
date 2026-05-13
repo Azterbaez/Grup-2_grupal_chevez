@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   Modal,
   Button,
@@ -34,53 +35,24 @@ const ModalRegistroCliente = ({
       size="lg"
     >
 
-      {/* HEADER */}
-
       <Modal.Header
         closeButton
-        className="border-0 bg-primary text-white"
+        className="bg-primary text-white"
       >
 
-        <Modal.Title className="fw-bold">
+        <Modal.Title>
           👤 Registrar Cliente
         </Modal.Title>
 
       </Modal.Header>
 
-      {/* BODY */}
-
-      <Modal.Body className="px-4 py-4">
-
-        <div className="text-center mb-4">
-
-          <div
-            className="mx-auto d-flex align-items-center justify-content-center bg-light rounded-circle shadow-sm"
-            style={{
-              width: "90px",
-              height: "90px",
-              fontSize: "2.5rem",
-            }}
-          >
-            🧑
-          </div>
-
-          <h4 className="fw-bold mt-3 mb-1">
-            Nuevo Cliente
-          </h4>
-
-          <p className="text-muted">
-            Completa la información del cliente
-          </p>
-
-        </div>
+      <Modal.Body className="p-4">
 
         <Form>
 
-          {/* NOMBRE */}
-
           <Form.Group className="mb-4">
 
-            <Form.Label className="fw-semibold">
+            <Form.Label>
               Nombre Completo
             </Form.Label>
 
@@ -93,10 +65,9 @@ const ModalRegistroCliente = ({
               <Form.Control
                 type="text"
                 name="nombre_cliente"
-                placeholder="Ingresa el nombre"
-                value={nuevoCliente?.nombre_cliente || ""}
+                placeholder="Ingrese nombre"
+                value={nuevoCliente.nombre_cliente}
                 onChange={handleChange}
-                size="lg"
               />
 
             </InputGroup>
@@ -105,13 +76,11 @@ const ModalRegistroCliente = ({
 
           <Row>
 
-            {/* TELEFONO */}
-
             <Col md={6}>
 
               <Form.Group className="mb-4">
 
-                <Form.Label className="fw-semibold">
+                <Form.Label>
                   Teléfono
                 </Form.Label>
 
@@ -123,11 +92,10 @@ const ModalRegistroCliente = ({
 
                   <Form.Control
                     type="text"
-                    name="telefono_cliente"
+                    name="telefono"
                     placeholder="8888-8888"
-                    value={nuevoCliente?.telefono_cliente || ""}
+                    value={nuevoCliente.telefono}
                     onChange={handleChange}
-                    size="lg"
                   />
 
                 </InputGroup>
@@ -136,13 +104,11 @@ const ModalRegistroCliente = ({
 
             </Col>
 
-            {/* DIRECCION */}
-
             <Col md={6}>
 
               <Form.Group className="mb-4">
 
-                <Form.Label className="fw-semibold">
+                <Form.Label>
                   Dirección
                 </Form.Label>
 
@@ -154,11 +120,10 @@ const ModalRegistroCliente = ({
 
                   <Form.Control
                     type="text"
-                    name="direccion_cliente"
-                    placeholder="Ingresa la dirección"
-                    value={nuevoCliente?.direccion_cliente || ""}
+                    name="direccion"
+                    placeholder="Ingrese dirección"
+                    value={nuevoCliente.direccion}
                     onChange={handleChange}
-                    size="lg"
                   />
 
                 </InputGroup>
@@ -173,28 +138,22 @@ const ModalRegistroCliente = ({
 
       </Modal.Body>
 
-      {/* FOOTER */}
-
-      <Modal.Footer className="border-0 px-4 pb-4">
+      <Modal.Footer>
 
         <Button
-          variant="outline-secondary"
-          size="lg"
-          onClick={() => setMostrarModal(false)}
+          variant="secondary"
+          onClick={() =>
+            setMostrarModal(false)
+          }
         >
           Cancelar
         </Button>
 
         <Button
           variant="primary"
-          size="lg"
-          className="px-4 shadow-sm"
           onClick={agregarCliente}
-          disabled={
-            !nuevoCliente?.nombre_cliente?.trim()
-          }
         >
-          💾 Guardar Cliente
+          💾 Guardar
         </Button>
 
       </Modal.Footer>

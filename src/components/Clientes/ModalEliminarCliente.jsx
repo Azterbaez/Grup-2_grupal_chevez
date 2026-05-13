@@ -1,5 +1,9 @@
 import React from "react";
-import { Modal, Button } from "react-bootstrap";
+
+import {
+  Modal,
+  Button,
+} from "react-bootstrap";
 
 const ModalEliminarCliente = ({
   mostrarModalEliminar,
@@ -7,28 +11,64 @@ const ModalEliminarCliente = ({
   clienteSeleccionado,
   eliminarCliente,
 }) => {
+
   return (
-    <Modal show={mostrarModalEliminar} onHide={() => setMostrarModalEliminar(false)} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>Eliminar Cliente</Modal.Title>
+
+    <Modal
+      show={mostrarModalEliminar}
+      onHide={() =>
+        setMostrarModalEliminar(false)
+      }
+      centered
+    >
+
+      <Modal.Header
+        closeButton
+        className="bg-danger text-white"
+      >
+
+        <Modal.Title>
+          🗑 Eliminar Cliente
+        </Modal.Title>
+
       </Modal.Header>
 
-      <Modal.Body>
-        ¿Seguro que deseas eliminar a{" "}
-        <strong>{clienteSeleccionado?.nombre}</strong>?
+      <Modal.Body className="text-center">
+
+        <h5>
+          ¿Deseas eliminar este cliente?
+        </h5>
+
+        <strong>
+          {clienteSeleccionado?.nombre_cliente}
+        </strong>
+
       </Modal.Body>
 
       <Modal.Footer>
-        <Button onClick={() => setMostrarModalEliminar(false)}>
+
+        <Button
+          variant="secondary"
+          onClick={() =>
+            setMostrarModalEliminar(false)
+          }
+        >
           Cancelar
         </Button>
 
-        <Button variant="danger" onClick={eliminarCliente}>
+        <Button
+          variant="danger"
+          onClick={eliminarCliente}
+        >
           Eliminar
         </Button>
+
       </Modal.Footer>
+
     </Modal>
+
   );
+
 };
 
 export default ModalEliminarCliente;
