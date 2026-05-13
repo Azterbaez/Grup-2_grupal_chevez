@@ -466,41 +466,45 @@ const Productos = () => {
 
       )}
 
-      {!cargando && productosFiltrados.length > 0 && (
+      {!cargando && productosFiltrados.length === 0 && (
 
-  <Row className="text-center">
-    <Col>
-      <p className="text-muted">
-        No hay productos registrados
-      </p>
-    </Col>
-  </Row>
-)}
+        <Row className="text-center">
 
-        <Row>
-
-          <Col xs={12} className="d-none d-lg-block">
-
-            <TablaProducto
-              productos={productosPaginados}
-              abrirModalEdicion={abrirModalEdicion}
-              abrirModalEliminacion={abrirModalEliminacion}
-            />
-
-          </Col>
-
-          <Col xs={12} className="d-lg-none">
-
-            <TarjetasProductos
-              productos={productosFiltrados}
-              categorias={categorias}
-              abrirModalEdicion={abrirModalEdicion}
-              abrirModalEliminacion={abrirModalEliminacion}
-            />
-
+          <Col>
+            <p className="text-muted">
+              No hay productos registrados
+            </p>
           </Col>
 
         </Row>
+
+      )}
+
+      <Row>
+
+        <Col xs={12} className="d-none d-lg-block">
+
+          <TablaProducto
+            productos={productosPaginados}
+            categorias={categorias}
+            abrirModalEdicion={abrirModalEdicion}
+            abrirModalEliminacion={abrirModalEliminacion}
+          />
+
+        </Col>
+
+        <Col xs={12} className="d-lg-none">
+
+          <TarjetasProductos
+            productos={productosFiltrados}
+            categorias={categorias}
+            abrirModalEdicion={abrirModalEdicion}
+            abrirModalEliminacion={abrirModalEliminacion}
+          />
+
+        </Col>
+
+      </Row>
 
       <hr />
 

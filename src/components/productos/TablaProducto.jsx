@@ -1,9 +1,10 @@
-import React, {useState, useEffect } from "react";
-import {Table, Spinner, Button } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Table, Spinner, Button } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const TablaProducto = ({
   productos,
+  categorias,
   abrirModalEdicion,
   abrirModalEliminacion
 }) => {
@@ -11,7 +12,7 @@ const TablaProducto = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (productos && productos.length > 0) {
+    if (productos) {
       setLoading(false);
     } else {
       setLoading(true);
@@ -36,13 +37,15 @@ const TablaProducto = ({
               <th className="text-center">Acciones</th>
             </tr>
           </thead>
+
           <tbody>
             {productos.map((producto) => (
               <tr key={producto.id_producto}>
                 <td>{producto.id_producto}</td>
-                <td>{producto.nombre}</td>
-                <td>{producto.categoria}</td>
-                <td>C$ {producto.precio}</td>
+                <td>{producto.nombre_producto}</td>
+                <td>{producto.categoria_producto}</td>
+                <td>C$ {producto.precio_venta}</td>
+
                 <td className="text-center">
                   <Button
                     variant="outline-warning"
@@ -52,6 +55,7 @@ const TablaProducto = ({
                   >
                     <i className="bi bi-pencil"></i>
                   </Button>
+
                   <Button
                     variant="outline-danger"
                     size="sm"
