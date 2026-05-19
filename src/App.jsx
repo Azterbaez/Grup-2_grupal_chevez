@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Encabezado from "./components/navegacion/Encabezado";
 
 import Login from "./views/Login";
+import Inicio from "./views/Inicio";
 import Clientes from "./views/Clientes";
 import Productos from "./views/Productos";
 import Categorias from "./views/Categorias";
@@ -30,6 +31,16 @@ const App = () => {
                 <Routes>
 
                   {/* Redirección inicial */}
+
+                  <Route
+                    path="/inicio"
+                    element={
+                      <RutaProtegida>
+                        <Inicio />
+                      </RutaProtegida>
+                    }
+                  />
+
                   <Route
                     path="/"
                     element={
@@ -38,6 +49,8 @@ const App = () => {
                       </RutaProtegida>
                     }
                   />
+
+
                   <Route
                     path="/catalogo"
                     element={

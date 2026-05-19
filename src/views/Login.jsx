@@ -52,7 +52,7 @@ const Login = () => {
           marginBottom: "25px",
         }}
       >
-        Bienvenido nuevamente
+        Bienvenido de nuevo, por favor ingresa tus credenciales para continuar.
       </p>
 
       <FormularioLogin />

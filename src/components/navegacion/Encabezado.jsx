@@ -51,6 +51,14 @@ const Encabezado = () => {
         <Nav className="ms-auto pe-2">
 
           <Nav.Link
+            onClick={() => manejarNavegacion("/inicio")}
+            className={mostrarMenu ? "color-texto-marca" : "text-white"}
+          >
+            {mostrarMenu ? <i className="bi-house-fill me-2"></i> : null}
+            <strong>Inicio</strong>
+          </Nav.Link>
+
+          <Nav.Link
             onClick={() => manejarNavegacion("/Clientes")}
             className={mostrarMenu ? "color-texto-marca" : "text-white"}
           >
