@@ -14,25 +14,24 @@ const TablaCliente = ({
 
   return (
 
-    <div className="table-responsive shadow-sm rounded">
+    <div className="table-responsive rounded-4 shadow overflow-hidden">
 
       <Table
-        striped
-        bordered
         hover
-        className="align-middle"
+        className="align-middle mb-0"
       >
 
+        {/* HEADER */}
         <thead className="table-dark">
 
           <tr className="text-center">
 
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Dirección</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th className="py-3">ID</th>
+            <th className="py-3">Nombre</th>
+            <th className="py-3">Teléfono</th>
+            <th className="py-3">Dirección</th>
+            <th className="py-3">Estado</th>
+            <th className="py-3">Acciones</th>
 
           </tr>
 
@@ -46,7 +45,7 @@ const TablaCliente = ({
 
               <td
                 colSpan="6"
-                className="text-center py-4"
+                className="text-center py-5 fw-semibold"
               >
                 No hay clientes registrados
               </td>
@@ -59,46 +58,69 @@ const TablaCliente = ({
 
               <tr key={c.id_cliente}>
 
-                <td className="text-center">
-                  {c.id_cliente}
+                {/* ID */}
+                <td className="text-center fw-bold">
+                  #{c.id_cliente}
                 </td>
 
-                <td>{c.nombre_cliente}</td>
+                {/* NOMBRE */}
+                <td className="fw-semibold">
+                  👤 {c.nombre_cliente}
+                </td>
 
-                <td>{c.telefono}</td>
+                {/* TELÉFONO */}
+                <td>
+                  📞 {c.telefono}
+                </td>
 
-                <td>{c.direccion}</td>
+                {/* DIRECCIÓN */}
+                <td>
+                  📍 {c.direccion}
+                </td>
 
+                {/* ESTADO */}
                 <td className="text-center">
 
-                  <Badge bg="success">
+                  <Badge
+                    bg="success"
+                    pill
+                    className="px-3 py-2"
+                  >
                     Activo
                   </Badge>
 
                 </td>
 
+                {/* ACCIONES */}
                 <td className="text-center">
 
-                  <Button
-                    variant="warning"
-                    size="sm"
-                    className="me-2"
-                    onClick={() =>
-                      abrirModalEdicion(c)
-                    }
-                  >
-                    ✏ Editar
-                  </Button>
+                  <div className="d-flex justify-content-center gap-2">
 
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() =>
-                      abrirModalEliminar(c)
-                    }
-                  >
-                    🗑 Eliminar
-                  </Button>
+                    {/* EDITAR */}
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      className="rounded-pill px-3 fw-semibold shadow-sm"
+                      onClick={() =>
+                        abrirModalEdicion(c)
+                      }
+                    >
+                      ✏ Editar
+                    </Button>
+
+                    {/* ELIMINAR */}
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="rounded-pill px-3 fw-semibold shadow-sm"
+                      onClick={() =>
+                        abrirModalEliminar(c)
+                      }
+                    >
+                      🗑 Eliminar
+                    </Button>
+
+                  </div>
 
                 </td>
 
