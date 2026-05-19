@@ -58,46 +58,7 @@ const Encabezado = () => {
             <strong>Inicio</strong>
           </Nav.Link>
 
-          <Nav.Link
-            onClick={() => manejarNavegacion("/Clientes")}
-            className={mostrarMenu ? "color-texto-marca" : "text-white"}
-          >
-            {mostrarMenu ? <i className="bi-people-fill me-2"></i> : null}
-            <strong>Clientes</strong>
-          </Nav.Link>
-
-          <Nav.Link
-            onClick={() => manejarNavegacion("/Categorias")}
-            className={mostrarMenu ? "color-texto-marca" : "text-white"}
-          >
-            {mostrarMenu ? <i className="bi-tags-fill me-2"></i> : null}
-            <strong>Categorías</strong>
-          </Nav.Link>
-
-          <Nav.Link
-            onClick={() => manejarNavegacion("/Productos")}
-            className={mostrarMenu ? "color-texto-marca" : "text-white"}
-          >
-            {mostrarMenu ? <i className="bi-bag-heart-fill me-2"></i> : null}
-            <strong>Productos</strong>
-          </Nav.Link>
-
-          <Nav.Link
-            onClick={() => manejarNavegacion("/Catalogo")}
-            className={mostrarMenu ? "color-texto-marca" : "text-white"}
-          >
-            {mostrarMenu ? <i className="bi-book-fill me-2"></i> : null}
-            <strong>Catalogo</strong>
-          </Nav.Link>
-
-          <Nav.Link
-            onClick={() => manejarNavegacion("/Ventas")}
-            className={mostrarMenu ? "color-texto-marca" : "text-white"}
-          >
-            {mostrarMenu ? <i className="bi-cart-check-fill me-2"></i> : null}
-            <strong>Ventas</strong>
-          </Nav.Link>
-
+        
           <hr />
 
           {!mostrarMenu && (
@@ -132,7 +93,7 @@ const Encabezado = () => {
     <Navbar expand="md" fixed="top" className="color-navbar shadow-lg" variant="dark">
       <Container>
         <Navbar.Brand
-          onClick={() => manejarNavegacion("/Clientes")}
+          onClick={() => manejarNavegacion("/inicio")}
           className="text-white fw-bold d-flex align-items-center"
           style={{ cursor: "pointer" }}
         >
