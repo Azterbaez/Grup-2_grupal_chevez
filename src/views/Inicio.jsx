@@ -8,10 +8,11 @@ const Inicio = () => {
   return (
     <Container fluid className="p-0">
 
-      {/* 🔥 HERO */}
+      {/* HERO */}
       <div
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=1600')",
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=1600')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           minHeight: "75vh",
@@ -21,6 +22,8 @@ const Inicio = () => {
           position: "relative",
         }}
       >
+
+        {/* OSCURECER FONDO */}
         <div
           style={{
             position: "absolute",
@@ -30,21 +33,30 @@ const Inicio = () => {
           }}
         />
 
+        {/* CONTENIDO */}
         <div className="text-center text-white position-relative">
-          <h1 className="display-4 fw-bold mb-3">Pulpería Chevez</h1>
+
+          <h1 className="display-4 fw-bold mb-3">
+            Pulpería Chevez
+          </h1>
+
           <p className="lead mb-4">
             Control y análisis inteligente de tu negocio
           </p>
 
+          {/* BOTONES */}
           <div className="d-flex justify-content-center gap-3 flex-wrap">
+
+            {/* CATÁLOGO */}
             <Button
-              variant="success"
+              variant="outline-light"
               size="lg"
               onClick={() => navigate("/catalogo")}
             >
               🛒 Catálogo
             </Button>
 
+            {/* PRODUCTOS */}
             <Button
               variant="outline-light"
               size="lg"
@@ -52,9 +64,19 @@ const Inicio = () => {
             >
               📦 Productos
             </Button>
+
+            {/* CLIENTES */}
+            <Button
+              variant="outline-light"
+              size="lg"
+              onClick={() => navigate("/clientes")}
+            >
+              👤 Clientes
+            </Button>
+
           </div>
 
-          {/* acceso discreto */}
+          {/* DASHBOARD */}
           <div className="mt-3">
             <Button
               variant="dark"
@@ -64,39 +86,60 @@ const Inicio = () => {
               📊 Ver análisis
             </Button>
           </div>
+
         </div>
       </div>
 
-      {/* 🔥 TARJETAS (REDUCIDAS A 2) */}
+      {/* TARJETAS */}
       <Container className="py-5">
         <Row className="g-4 justify-content-center">
 
+          {/* CATEGORÍAS */}
           <Col md={5}>
             <Card className="shadow border-0 text-center p-4 rounded-4 hover-scale">
+
               <div className="fs-1 mb-3">📂</div>
-              <h5 className="fw-bold">Categorías</h5>
-              <p className="text-muted">Organiza tus productos fácilmente</p>
+
+              <h5 className="fw-bold">
+                Categorías
+              </h5>
+
+              <p className="text-muted">
+                Organiza tus productos fácilmente
+              </p>
+
               <Button onClick={() => navigate("/categorias")}>
                 Ver categorías
               </Button>
+
             </Card>
           </Col>
 
+          {/* DASHBOARD */}
           <Col md={5}>
             <Card className="shadow border-0 text-center p-4 rounded-4 hover-scale">
+
               <div className="fs-1 mb-3">📊</div>
-              <h5 className="fw-bold">Dashboard</h5>
-              <p className="text-muted">Analiza ventas y rendimiento</p>
+
+              <h5 className="fw-bold">
+                Dashboard
+              </h5>
+
+              <p className="text-muted">
+                Analiza ventas y rendimiento
+              </p>
+
               <Button onClick={() => navigate("/dashboard")}>
                 Ir al análisis
               </Button>
+
             </Card>
           </Col>
 
         </Row>
       </Container>
 
-      {/* 🔥 ESTILOS */}
+      {/* EFECTOS */}
       <style>
         {`
         .hover-scale {

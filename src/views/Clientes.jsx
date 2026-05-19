@@ -303,9 +303,7 @@ const Clientes = () => {
 
   };
 
-  // ==========================
-  // ABRIR MODAL ELIMINAR
-  // ==========================
+  
 
   const abrirModalEliminar = (cliente) => {
 
