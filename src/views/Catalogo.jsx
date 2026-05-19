@@ -5,7 +5,7 @@ import { Container, Row, Col, Spinner, Alert, Form, Card,
 import { supabase } from "../database/supabaseconfig";
 
 import TarjetaCatalogo from "../components/catalogo/TarjetaCatalogo";
-import CuadroBusquedas from "../components/busquedas/CuadroBusquedas";
+import CuadroBusquedas from "../components/busquedas/cuadroBusquedas";
 
 const Catalogo = () => {
 
