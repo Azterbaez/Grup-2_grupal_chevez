@@ -1,4 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 import Encabezado from "./components/navegacion/Encabezado";
 
@@ -15,22 +19,45 @@ import Pagina404 from "./views/pagina404";
 import "./App.css";
 
 const App = () => {
+
   return (
+
     <Router>
+
       <Routes>
 
-        <Route path="/login" element={<Login />} />
+        {/* LOGIN */}
 
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        {/* SISTEMA */}
 
         <Route
           path="/*"
           element={
             <>
+
               <Encabezado />
+
               <main className="margen-superior-main">
+
                 <Routes>
 
-                  {/* Redirección inicial */}
+                  {/* INICIO */}
+
+                  <Route
+                    path="/"
+                    element={
+                      <RutaProtegida>
+                        <Inicio />
+                      </RutaProtegida>
+                    }
+                  />
+
+                  {/* INICIO ALTERNATIVO */}
 
                   <Route
                     path="/inicio"
@@ -41,33 +68,7 @@ const App = () => {
                     }
                   />
 
-                  <Route
-                    path="/"
-                    element={
-                      <RutaProtegida>
-                        <Clientes />
-                      </RutaProtegida>
-                    }
-                  />
-
-
-                  <Route
-                    path="/catalogo"
-                    element={
-                      <RutaProtegida>
-                        <Catalogo />
-                      </RutaProtegida>
-                    }
-                  />
-
-                  <Route
-                    path="/categorias"
-                    element={
-                      <RutaProtegida>
-                        <Categorias />
-                      </RutaProtegida>
-                    }
-                  />
+                  {/* CLIENTES */}
 
                   <Route
                     path="/clientes"
@@ -78,6 +79,30 @@ const App = () => {
                     }
                   />
 
+                  {/* PRODUCTOS */}
+
+                  <Route
+                    path="/productos"
+                    element={
+                      <RutaProtegida>
+                        <Productos />
+                      </RutaProtegida>
+                    }
+                  />
+
+                  {/* CATEGORÍAS */}
+
+                  <Route
+                    path="/categorias"
+                    element={
+                      <RutaProtegida>
+                        <Categorias />
+                      </RutaProtegida>
+                    }
+                  />
+
+                  {/* VENTAS */}
+
                   <Route
                     path="/ventas"
                     element={
@@ -87,27 +112,38 @@ const App = () => {
                     }
                   />
 
+                  {/* CATÁLOGO */}
+
                   <Route
-                    path="/Productos"
+                    path="/catalogo"
                     element={
                       <RutaProtegida>
-                        <Productos />
+                        <Catalogo />
                       </RutaProtegida>
                     }
                   />
 
-
                   {/* 404 */}
-                  <Route path="*" element={<Pagina404 />} />
+
+                  <Route
+                    path="*"
+                    element={<Pagina404 />}
+                  />
 
                 </Routes>
+
               </main>
+
             </>
           }
         />
+
       </Routes>
+
     </Router>
+
   );
+
 };
 
 export default App;
