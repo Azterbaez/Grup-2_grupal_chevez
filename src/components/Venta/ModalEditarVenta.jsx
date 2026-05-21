@@ -6,104 +6,98 @@ import {
   Row,
   Col,
   Image,
-  Card,
-  Badge,
-  Spinner,
+  Badge
 } from "react-bootstrap";
 
 import { supabase } from "../../database/supabaseconfig";
 
-const ModalEditarVenta = ({
-  mostrarModal,
-  setMostrarModal,
-  ventaSeleccionada,
-  cargarVentas,
-}) => {
+const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
 
-  const [formulario, setFormulario] = useState({
-    cantidad: "",
-    total: "",
-  });
-
-  const [cargando, setCargando] = useState(false);
+  const [form, setForm] = useState({});
+  const [productos, setProductos] = useState([]);
 
   useEffect(() => {
 
-    if (ventaSeleccionada) {
+    setForm(venta || {});
 
-      setFormulario({
-        cantidad: ventaSeleccionada.cantidad || "",
-        total: ventaSeleccionada.total || "",
-      });
+    cargarProductos();
 
+  }, [venta]);
+
+  const cargarProductos = async () => {
+
+    const { data, error } = await supabase
+      .from("productos")
+      .select("*")
+      .order("nombre_producto", { ascending: true });
+
+    if (error) {
+      console.log("Error productos:", error);
+      return;
     }
 
-  }, [ventaSeleccionada]);
+    setProductos(data || []);
+  };
 
-  // ==========================
-  // CAMBIO CANTIDAD
-  // ==========================
+  const handleProducto = (e) => {
 
-  const manejarCantidad = (e) => {
+    const id = parseInt(e.target.value);
+
+    const producto = productos.find(
+      (p) => p.id_producto === id
+    );
+
+    const precio = parseFloat(producto?.precio_venta || 0);
+
+    setForm({
+      ...form,
+      id_producto: id,
+      productos: producto,
+      cantidad: form.cantidad || 1,
+      total: (form.cantidad || 1) * precio
+    });
+  };
+
+  const handleCantidad = (e) => {
 
     const cantidad = parseInt(e.target.value) || 1;
 
-    const precioUnitario =
-      ventaSeleccionada.total / ventaSeleccionada.cantidad;
+    const precio = form.productos?.precio_venta || 0;
 
-    setFormulario({
+    setForm({
+      ...form,
       cantidad,
-      total: cantidad * precioUnitario,
+      total: cantidad * precio
     });
-
   };
 
-  // ==========================
-  // ACTUALIZAR
-  // ==========================
+  const actualizar = async () => {
 
-  const actualizarVenta = async () => {
+    const { error } = await supabase
+      .from("ventas")
+      .update({
+        id_producto: form.id_producto,
+        cantidad: form.cantidad,
+        total: form.total
+      })
+      .eq("id_venta", venta.id_venta);
 
-    try {
-
-      setCargando(true);
-
-      const { error } = await supabase
-        .from("ventas")
-        .update({
-          cantidad: formulario.cantidad,
-          total: formulario.total,
-        })
-        .eq("id_venta", ventaSeleccionada.id_venta);
-
-      if (error) throw error;
-
-      setMostrarModal(false);
-
-      cargarVentas();
-
-    } catch (error) {
-
-      console.error(
-        "Error al actualizar venta:",
-        error
-      );
-
-    } finally {
-
-      setCargando(false);
-
+    if (error) {
+      console.log("Error actualizando venta:", error);
+      return;
     }
 
+    onHide();
+    onSuccess();
   };
 
-  if (!ventaSeleccionada) return null;
+  if (!venta) return null;
 
   return (
 
     <Modal
-      show={mostrarModal}
-      onHide={() => setMostrarModal(false)}
+      show={show}
+      onHide={onHide}
       centered
       size="lg"
     >
@@ -113,81 +107,53 @@ const ModalEditarVenta = ({
         className="border-0 pb-0"
       >
 
-        <Modal.Title className="fw-bold text-success">
-          <i className="bi bi-pencil-square me-2"></i>
-          Editar Venta
+        <Modal.Title className="fw-bold fs-3">
+          ✏️ Editar Venta
         </Modal.Title>
 
       </Modal.Header>
 
       <Modal.Body className="pt-2">
 
-        <Row className="g-4">
+        <Row className="g-4 align-items-center">
 
           {/* IMAGEN */}
 
           <Col md={5}>
 
-            <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
+            <div
+              className="border rounded-4 overflow-hidden shadow-sm bg-light mx-auto"
+              style={{
+                width: "240px",
+                height: "240px"
+              }}
+            >
 
-              <div
-                className="bg-light d-flex align-items-center justify-content-center"
-                style={{
-                  height: "300px",
-                }}
-              >
+              {form.productos?.url_imagen ? (
 
-                {ventaSeleccionada.productos?.url_imagen ? (
+                <Image
+                  src={form.productos.url_imagen}
+                  fluid
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover"
+                  }}
+                />
 
-                  <Image
-                    src={
-                      ventaSeleccionada.productos.url_imagen
-                    }
-                    fluid
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
+              ) : (
 
-                ) : (
+                <div className="d-flex align-items-center justify-content-center h-100">
 
-                  <div className="text-center">
+                  <span style={{ fontSize: "5rem" }}>
+                    📦
+                  </span>
 
-                    <i
-                      className="bi bi-image text-muted"
-                      style={{
-                        fontSize: "5rem",
-                      }}
-                    ></i>
+                </div>
 
-                    <p className="text-muted mt-2">
-                      Sin imagen
-                    </p>
+              )}
 
-                  </div>
-
-                )}
-
-              </div>
-
-              <Card.Body>
-
-                <h5 className="fw-bold mb-2">
-                  {
-                    ventaSeleccionada.productos
-                      ?.nombre_producto
-                  }
-                </h5>
-
-                <Badge bg="success">
-                  Venta activa
-                </Badge>
-
-              </Card.Body>
-
-            </Card>
+            </div>
 
           </Col>
 
@@ -195,77 +161,100 @@ const ModalEditarVenta = ({
 
           <Col md={7}>
 
-            <Card className="border-0 shadow-sm rounded-4">
+            <div className="bg-light rounded-4 p-4 shadow-sm">
 
-              <Card.Body>
+              <Form>
 
-                <Form>
+                {/* PRODUCTO */}
 
-                  {/* PRODUCTO */}
+                <Form.Group className="mb-4">
 
-                  <Form.Group className="mb-4">
+                  <Form.Label className="fw-semibold">
+                    Producto
+                  </Form.Label>
 
-                    <Form.Label className="fw-semibold">
-                      Producto
-                    </Form.Label>
+                  <Form.Select
+                    value={form.id_producto || ""}
+                    onChange={handleProducto}
+                    size="lg"
+                    className="rounded-3"
+                  >
 
-                    <Form.Control
-                      type="text"
-                      value={
-                        ventaSeleccionada.productos
-                          ?.nombre_producto || ""
-                      }
-                      disabled
-                      size="lg"
-                      className="bg-light shadow-sm"
-                    />
+                    <option value="">
+                      Selecciona un producto
+                    </option>
 
-                  </Form.Group>
+                    {productos.map((p) => (
 
-                  {/* CANTIDAD */}
+                      <option
+                        key={p.id_producto}
+                        value={p.id_producto}
+                      >
+                        {p.nombre_producto}
+                      </option>
 
-                  <Form.Group className="mb-4">
+                    ))}
 
-                    <Form.Label className="fw-semibold">
-                      Cantidad
-                    </Form.Label>
+                  </Form.Select>
 
-                    <Form.Control
-                      type="number"
-                      min={1}
-                      value={formulario.cantidad}
-                      onChange={manejarCantidad}
-                      size="lg"
-                      className="shadow-sm"
-                    />
+                </Form.Group>
 
-                  </Form.Group>
+                {/* CATEGORIA */}
 
-                  {/* TOTAL */}
+                <div className="mb-4">
 
-                  <Form.Group>
+                  <Form.Label className="fw-semibold d-block">
+                    Categoría
+                  </Form.Label>
 
-                    <Form.Label className="fw-semibold">
-                      Total
-                    </Form.Label>
+                  <Badge
+                    bg="primary"
+                    className="px-3 py-2 fs-6"
+                  >
+                    {form.productos?.categoria_producto || "Sin categoría"}
+                  </Badge>
 
-                    <Form.Control
-                      type="text"
-                      value={`C$ ${parseFloat(
-                        formulario.total || 0
-                      ).toFixed(2)}`}
-                      disabled
-                      size="lg"
-                      className="fw-bold text-success bg-light shadow-sm"
-                    />
+                </div>
 
-                  </Form.Group>
+                {/* CANTIDAD */}
 
-                </Form>
+                <Form.Group className="mb-4">
 
-              </Card.Body>
+                  <Form.Label className="fw-semibold">
+                    Cantidad
+                  </Form.Label>
 
-            </Card>
+                  <Form.Control
+                    type="number"
+                    min="1"
+                    value={form.cantidad || ""}
+                    onChange={handleCantidad}
+                    size="lg"
+                    className="rounded-3"
+                  />
+
+                </Form.Group>
+
+                {/* TOTAL */}
+
+                <Form.Group>
+
+                  <Form.Label className="fw-semibold">
+                    Total
+                  </Form.Label>
+
+                  <Form.Control
+                    value={`C$ ${parseFloat(form.total || 0).toFixed(2)}`}
+                    disabled
+                    size="lg"
+                    className="fw-bold text-success rounded-3"
+                  />
+
+                </Form.Group>
+
+              </Form>
+
+            </div>
 
           </Col>
 
@@ -276,49 +265,25 @@ const ModalEditarVenta = ({
       <Modal.Footer className="border-0 pt-0">
 
         <Button
-          variant="outline-secondary"
-          onClick={() => setMostrarModal(false)}
+          variant="light"
+          onClick={onHide}
+          className="px-4 py-2 rounded-3"
         >
           Cancelar
         </Button>
 
         <Button
           variant="success"
-          onClick={actualizarVenta}
-          disabled={cargando}
-          className="px-4"
+          onClick={actualizar}
+          className="px-4 py-2 rounded-3 shadow-sm"
         >
-
-          {cargando ? (
-
-            <>
-              <Spinner
-                animation="border"
-                size="sm"
-                className="me-2"
-              />
-
-              Actualizando...
-
-            </>
-
-          ) : (
-
-            <>
-              <i className="bi bi-check-circle me-2"></i>
-              Actualizar
-            </>
-
-          )}
-
+          💾 Guardar Cambios
         </Button>
 
       </Modal.Footer>
 
     </Modal>
-
   );
-
 };
 
 export default ModalEditarVenta;

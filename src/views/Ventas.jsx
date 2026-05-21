@@ -1,448 +1,545 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Table, Spinner, Card, Badge } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Table,
+  Spinner,
+  Card,
+  Badge
+} from "react-bootstrap";
 
 import { supabase } from "../database/supabaseconfig";
 
 import ModalRegistroVenta from "../components/Venta/ModalRegistroVenta";
 import ModalEditarVenta from "../components/Venta/ModalEditarVenta";
 import ModalEliminarVenta from "../components/Venta/ModalEliminarVenta";
-import NotificacionOperacion from "../components/NotificacionOperacion";
 
 const Ventas = () => {
-  const [ventas, setVentas] = useState([]);
-  const [cargando, setCargando] = useState(true);
 
-  const [mostrarRegistro, setMostrarRegistro] = useState(false);
-  const [mostrarEditar, setMostrarEditar] = useState(false);
-  const [mostrarEliminar, setMostrarEliminar] = useState(false);
+  const [ventas, setVentas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [showRegistro, setShowRegistro] = useState(false);
+  const [showEditar, setShowEditar] = useState(false);
+  const [showEliminar, setShowEliminar] = useState(false);
 
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
-
-  const [toast, setToast] = useState({
-    mostrar: false,
-    mensaje: "",
-    tipo: "",
-  });
 
   useEffect(() => {
     cargarVentas();
   }, []);
 
+  // =========================
+  // CARGAR VENTAS
+  // =========================
 
   const cargarVentas = async () => {
-    try {
-      setCargando(true);
 
-      const { data, error } = await supabase
+    try {
+
+      setLoading(true);
+
+      // =========================
+      // VENTAS
+      // =========================
+
+      const { data: ventasData, error: ventasError } = await supabase
         .from("ventas")
-        .select(`
-          *,
-          productos (
-            id_producto,
-            nombre_producto,
-            categoria_producto,
-            url_imagen
-          )
-        `)
+        .select("*")
         .order("id_venta", { ascending: false });
 
-      if (error) throw error;
+      if (ventasError) {
+        console.error("Error ventas:", ventasError);
+        return;
+      }
 
-      setVentas(data || []);
-    } catch (error) {
-      console.error("Error al cargar ventas:", error);
+      // =========================
+      // PRODUCTOS
+      // =========================
 
-      setToast({
-        mostrar: true,
-        mensaje: "Error al cargar ventas",
-        tipo: "error",
+      const { data: productosData, error: productosError } = await supabase
+        .from("productos")
+        .select("*");
+
+      if (productosError) {
+        console.error("Error productos:", productosError);
+        return;
+      }
+
+      // =========================
+      // CATEGORIAS
+      // =========================
+
+      const { data: categoriasData, error: categoriasError } = await supabase
+        .from("categorias")
+        .select("*");
+
+      if (categoriasError) {
+        console.error("Error categorias:", categoriasError);
+        return;
+      }
+
+      // =========================
+      // UNIR DATOS
+      // =========================
+
+      const ventasCompletas = ventasData.map((venta) => {
+
+        const producto = productosData.find(
+          (p) =>
+            String(p.id_producto) === String(venta.id_producto)
+        );
+
+        const categoria = categoriasData.find(
+          (c) =>
+            String(c.id_categoria) ===
+            String(producto?.categoria_producto)
+        );
+
+        return {
+          ...venta,
+          productos: {
+            ...producto,
+            nombre_categoria:
+              categoria?.nombre_categoria || "Sin categoría"
+          }
+        };
       });
+
+      setVentas(ventasCompletas);
+
+    } catch (error) {
+
+      console.error("Error general:", error);
+
     } finally {
-      setCargando(false);
+
+      setLoading(false);
+
     }
   };
 
+  // =========================
+  // ELIMINAR VENTA
+  // =========================
 
   const eliminarVenta = async () => {
+
     try {
-      if (!ventaSeleccionada) return;
 
       const { error } = await supabase
         .from("ventas")
         .delete()
         .eq("id_venta", ventaSeleccionada.id_venta);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error eliminando venta:", error);
+        return;
+      }
 
-      setMostrarEliminar(false);
-
-      setToast({
-        mostrar: true,
-        mensaje: "Venta eliminada correctamente",
-        tipo: "exito",
-      });
+      setShowEliminar(false);
 
       cargarVentas();
-    } catch (error) {
-      console.error("Error al eliminar venta:", error);
 
-      setToast({
-        mostrar: true,
-        mensaje: "Error al eliminar venta",
-        tipo: "error",
-      });
+    } catch (error) {
+
+      console.error("Error al eliminar:", error);
     }
   };
 
   return (
-    <Container className="mt-3">
 
-      {/* ENCABEZADO */}
+    <Container fluid className="py-4 px-lg-5">
 
-      <Row className="align-items-center mb-4">
+      {/* HEADER */}
 
-        <Col>
-          <h3 className="mb-0">
-            <i className="bi bi-cart-check me-2"></i>
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+
+        <div>
+
+          <h1 className="fw-bold mb-1 text-white">
             Gestión de Ventas
-          </h3>
+          </h1>
+
+          <p className="text-white mb-0">
+            Administra y controla todas las ventas registradas
+          </p>
+
+        </div>
+
+        <Button
+          variant="primary"
+          size="lg"
+          className="rounded-4 px-4 shadow-sm fw-semibold"
+          onClick={() => setShowRegistro(true)}
+        >
+          ➕ Nueva Venta
+        </Button>
+
+      </div>
+
+      {/* ESTADÍSTICAS */}
+
+      <Row className="g-4 mb-4">
+
+        <Col md={4}>
+
+          <Card className="border-0 shadow-sm rounded-4 h-100">
+
+            <Card.Body>
+
+              <div className="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                  <p className="text-muted mb-1">
+                    Total Ventas
+                  </p>
+
+                  <h3 className="fw-bold mb-0">
+                    {ventas.length}
+                  </h3>
+
+                </div>
+
+                <div
+                  className="d-flex align-items-center justify-content-center rounded-4"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    background: "rgba(59,130,246,0.12)",
+                    fontSize: "1.8rem"
+                  }}
+                >
+                  🧾
+                </div>
+
+              </div>
+
+            </Card.Body>
+
+          </Card>
+
         </Col>
 
-        <Col className="text-end">
-          <Button
-            variant="success"
-            onClick={() => setMostrarRegistro(true)}
-          >
-            <i className="bi bi-plus-lg"></i>
-            <span className="ms-2">
-              Nueva Venta
-            </span>
-          </Button>
+        <Col md={4}>
+
+          <Card className="border-0 shadow-sm rounded-4 h-100">
+
+            <Card.Body>
+
+              <div className="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                  <p className="text-muted mb-1">
+                    Productos Vendidos
+                  </p>
+
+                  <h3 className="fw-bold mb-0">
+                    {ventas.reduce((acc, venta) => acc + venta.cantidad, 0)}
+                  </h3>
+
+                </div>
+
+                <div
+                  className="d-flex align-items-center justify-content-center rounded-4"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    background: "rgba(16,185,129,0.12)",
+                    fontSize: "1.8rem"
+                  }}
+                >
+                  📦
+                </div>
+
+              </div>
+
+            </Card.Body>
+
+          </Card>
+
+        </Col>
+
+        <Col md={4}>
+
+          <Card className="border-0 shadow-sm rounded-4 h-100">
+
+            <Card.Body>
+
+              <div className="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                  <p className="text-muted mb-1">
+                    Ingresos Totales
+                  </p>
+
+                  <h3 className="fw-bold text-success mb-0">
+                    C$ {ventas.reduce((acc, venta) => acc + parseFloat(venta.total || 0), 0).toFixed(2)}
+                  </h3>
+
+                </div>
+
+                <div
+                  className="d-flex align-items-center justify-content-center rounded-4"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    background: "rgba(34,197,94,0.12)",
+                    fontSize: "1.8rem"
+                  }}
+                >
+                  💰
+                </div>
+
+              </div>
+
+            </Card.Body>
+
+          </Card>
+
         </Col>
 
       </Row>
 
-      <hr />
-
       {/* LOADING */}
 
-      {cargando && (
+      {loading ? (
 
-        <Row className="text-center my-5">
+        <div className="text-center py-5">
 
-          <Col>
+          <Spinner
+            animation="border"
+            variant="primary"
+          />
 
-            <Spinner
-              animation="border"
-              variant="success"
-            />
+          <p className="mt-3 text-muted">
+            Cargando ventas...
+          </p>
 
-            <p className="mt-3 text-muted">
-              Cargando ventas...
-            </p>
+        </div>
 
-          </Col>
+      ) : (
 
-        </Row>
+        <div className="d-none d-lg-block">
 
-      )}
+          <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
 
-      {/* TABLA */}
+            <div className="p-4 border-bottom bg-white">
 
-      {!cargando && ventas.length > 0 && (
+              <h5 className="fw-bold mb-0">
+                Historial de Ventas
+              </h5>
 
-        <Row>
+            </div>
 
-          <Col xs={12} className="d-none d-lg-block">
+            <Table hover responsive className="align-middle mb-0">
 
-            <Card className="shadow-sm border-0">
+              <thead
+                style={{
+                  background: "#0f172a",
+                  color: "white"
+                }}
+              >
 
-              <Table hover responsive className="mb-0 align-middle">
+                <tr>
 
-                <thead className="table-dark">
+                  <th className="ps-4">#</th>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Cantidad</th>
+                  <th>Total</th>
+                  <th className="text-center">Acciones</th>
 
-                  <tr>
-                    <th>ID</th>
-                    <th>Imagen</th>
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Cantidad</th>
-                    <th>Total</th>
-                    <th className="text-center">
-                      Acciones
-                    </th>
-                  </tr>
+                </tr>
 
-                </thead>
+              </thead>
 
-                <tbody>
+              <tbody>
 
-                  {ventas.map((venta) => (
+                {ventas.length > 0 ? (
+
+                  ventas.map((venta) => (
 
                     <tr key={venta.id_venta}>
 
-                      <td>
+                      <td className="ps-4 fw-semibold">
                         #{venta.id_venta}
                       </td>
 
                       <td>
 
-                        {venta.productos?.url_imagen ? (
+                        <div className="d-flex align-items-center gap-3">
 
-                          <img
-                            src={venta.productos.url_imagen}
-                            alt={venta.productos.nombre_producto}
-                            style={{
-                              width: "60px",
-                              height: "60px",
-                              objectFit: "cover",
-                              borderRadius: "10px",
-                            }}
-                          />
+                          {venta.productos?.url_imagen ? (
 
-                        ) : (
+                            <img
+                              src={venta.productos.url_imagen}
+                              alt={venta.productos.nombre_producto}
+                              style={{
+                                width: "65px",
+                                height: "65px",
+                                objectFit: "cover",
+                                borderRadius: "16px"
+                              }}
+                            />
 
-                          <div
-                            className="bg-light d-flex align-items-center justify-content-center"
-                            style={{
-                              width: "60px",
-                              height: "60px",
-                              borderRadius: "10px",
-                            }}
-                          >
-                            📦
-                          </div>
+                          ) : (
 
-                        )}
-
-                      </td>
-
-                      <td className="fw-semibold">
-                        {venta.productos?.nombre_producto}
-                      </td>
-
-                      <td>
-
-                        <Badge bg="secondary">
-                          {venta.productos?.categoria_producto}
-                        </Badge>
-
-                      </td>
-
-                      <td>
-                        {venta.cantidad}
-                      </td>
-
-                      <td className="fw-bold text-success">
-                        C$ {parseFloat(venta.total).toFixed(2)}
-                      </td>
-
-                      <td className="text-center">
-
-                        <Button
-                          size="sm"
-                          variant="warning"
-                          className="me-2"
-                          onClick={() => {
-                            setVentaSeleccionada(venta);
-                            setMostrarEditar(true);
-                          }}
-                        >
-                          ✏️
-                        </Button>
-
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() => {
-                            setVentaSeleccionada(venta);
-                            setMostrarEliminar(true);
-                          }}
-                        >
-                          🗑️
-                        </Button>
-
-                      </td>
-
-                    </tr>
-
-                  ))}
-
-                </tbody>
-
-              </Table>
-
-            </Card>
-
-          </Col>
-
-          {/* MOBILE */}
-
-          <Col xs={12} className="d-lg-none">
-
-            <Row className="g-3">
-
-              {ventas.map((venta) => (
-
-                <Col xs={12} key={venta.id_venta}>
-
-                  <Card className="shadow-sm border-0">
-
-                    <Card.Body>
-
-                      <div className="d-flex gap-3">
-
-                        {venta.productos?.url_imagen ? (
-
-                          <img
-                            src={venta.productos.url_imagen}
-                            alt={venta.productos.nombre_producto}
-                            style={{
-                              width: "80px",
-                              height: "80px",
-                              objectFit: "cover",
-                              borderRadius: "10px",
-                            }}
-                          />
-
-                        ) : (
-
-                          <div
-                            className="bg-light d-flex align-items-center justify-content-center"
-                            style={{
-                              width: "80px",
-                              height: "80px",
-                              borderRadius: "10px",
-                            }}
-                          >
-                            📦
-                          </div>
-
-                        )}
-
-                        <div className="flex-grow-1">
-
-                          <h5>
-                            {venta.productos?.nombre_producto}
-                          </h5>
-
-                          <Badge bg="secondary" className="mb-2">
-                            {venta.productos?.categoria_producto}
-                          </Badge>
-
-                          <p className="mb-1">
-                            <strong>Cantidad:</strong>{" "}
-                            {venta.cantidad}
-                          </p>
-
-                          <p className="fw-bold text-success">
-                            C$ {parseFloat(venta.total).toFixed(2)}
-                          </p>
-
-                          <div className="d-flex gap-2">
-
-                            <Button
-                              size="sm"
-                              variant="warning"
-                              className="w-50"
-                              onClick={() => {
-                                setVentaSeleccionada(venta);
-                                setMostrarEditar(true);
+                            <div
+                              className="bg-light d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "65px",
+                                height: "65px",
+                                borderRadius: "16px",
+                                fontSize: "1.5rem"
                               }}
                             >
-                              Editar
-                            </Button>
+                              📦
+                            </div>
 
-                            <Button
-                              size="sm"
-                              variant="danger"
-                              className="w-50"
-                              onClick={() => {
-                                setVentaSeleccionada(venta);
-                                setMostrarEliminar(true);
-                              }}
-                            >
-                              Eliminar
-                            </Button>
+                          )}
+
+                          <div>
+
+                            <h6 className="mb-1 fw-bold">
+                              {venta.productos?.nombre_producto || "Sin producto"}
+                            </h6>
+
+                            <small className="text-muted">
+                              Venta registrada
+                            </small>
 
                           </div>
 
                         </div>
 
+                      </td>
+
+                      <td>
+
+                        <Badge
+                          bg="light"
+                          text="dark"
+                          className="px-3 py-2 rounded-pill border"
+                        >
+                          {venta.productos?.nombre_categoria || "Sin categoría"}
+                        </Badge>
+
+                      </td>
+
+                      <td className="fw-semibold">
+                        {venta.cantidad}
+                      </td>
+
+                      <td className="fw-bold text-success">
+                        C$ {parseFloat(venta.total || 0).toFixed(2)}
+                      </td>
+
+                      <td>
+
+                        <div className="d-flex justify-content-center gap-2">
+
+                          <Button
+                            variant="light"
+                            className="rounded-circle shadow-sm"
+                            style={{
+                              width: "42px",
+                              height: "42px"
+                            }}
+                            onClick={() => {
+                              setVentaSeleccionada(venta);
+                              setShowEditar(true);
+                            }}
+                          >
+                            ✏️
+                          </Button>
+
+                          <Button
+                            variant="light"
+                            className="rounded-circle shadow-sm"
+                            style={{
+                              width: "42px",
+                              height: "42px"
+                            }}
+                            onClick={() => {
+                              setVentaSeleccionada(venta);
+                              setShowEliminar(true);
+                            }}
+                          >
+                            🗑️
+                          </Button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  ))
+
+                ) : (
+
+                  <tr>
+
+                    <td colSpan="6" className="text-center py-5">
+
+                      <div className="py-4">
+
+                        <div style={{ fontSize: "4rem" }}>
+                          📊
+                        </div>
+
+                        <h4 className="fw-bold mt-3">
+                          No hay ventas registradas
+                        </h4>
+
+                        <p className="text-muted">
+                          Comienza agregando una nueva venta
+                        </p>
+
                       </div>
 
-                    </Card.Body>
+                    </td>
 
-                  </Card>
+                  </tr>
 
-                </Col>
+                )}
 
-              ))}
+              </tbody>
 
-            </Row>
+            </Table>
 
-          </Col>
+          </Card>
 
-        </Row>
-
-      )}
-
-      {/* SIN DATOS */}
-
-      {!cargando && ventas.length === 0 && (
-
-        <Row className="text-center my-5">
-
-          <Col>
-
-            <h4>
-              No hay ventas registradas
-            </h4>
-
-            <p className="text-muted">
-              Registra una nueva venta
-            </p>
-
-          </Col>
-
-        </Row>
+        </div>
 
       )}
 
       {/* MODALES */}
 
       <ModalRegistroVenta
-        mostrarModal={mostrarRegistro}
-        setMostrarModal={setMostrarRegistro}
-        cargarVentas={cargarVentas}
+        show={showRegistro}
+        onHide={() => setShowRegistro(false)}
+        onSuccess={cargarVentas}
       />
 
       <ModalEditarVenta
-        mostrarModal={mostrarEditar}
-        setMostrarModal={setMostrarEditar}
-        ventaSeleccionada={ventaSeleccionada}
-        cargarVentas={cargarVentas}
+        show={showEditar}
+        onHide={() => setShowEditar(false)}
+        venta={ventaSeleccionada}
+        onSuccess={cargarVentas}
       />
 
       <ModalEliminarVenta
-        mostrarModal={mostrarEliminar}
-        setMostrarModal={setMostrarEliminar}
-        eliminarVenta={eliminarVenta}
+        show={showEliminar}
+        onHide={() => setShowEliminar(false)}
+        onConfirmar={eliminarVenta}
         venta={ventaSeleccionada}
-      />
-
-      {/* TOAST */}
-
-      <NotificacionOperacion
-        mostrar={toast.mostrar}
-        mensaje={toast.mensaje}
-        tipo={toast.tipo}
-        onCerrar={() =>
-          setToast({
-            ...toast,
-            mostrar: false,
-          })
-        }
       />
 
     </Container>

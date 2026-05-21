@@ -13,6 +13,7 @@ import Productos from "./views/Productos";
 import Categorias from "./views/Categorias";
 import Ventas from "./views/Ventas";
 import Catalogo from "./views/Catalogo";
+import DashboardVentas from "./views/DashboardVentas";
 import RutaProtegida from "./components/rutas/RutasProtegida";
 import Pagina404 from "./views/pagina404";
 
@@ -67,6 +68,16 @@ const App = () => {
                       </RutaProtegida>
                     }
                   />
+
+                    {/* DASHBOARD VENTAS */}
+                    <Route
+                      path="/dashboard-ventas"
+                      element={
+                        <RutaProtegida>
+                          <DashboardVentas />
+                        </RutaProtegida>
+                      }
+                    />  
 
                   {/* CLIENTES */}
 

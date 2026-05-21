@@ -58,7 +58,48 @@ const Encabezado = () => {
             <strong>Inicio</strong>
           </Nav.Link>
 
-        
+          <Nav.Link
+            onClick={() => manejarNavegacion("/Ventas")}
+            className={mostrarMenu ? "color-texto-marca" : "text-white"}  
+          >
+            {mostrarMenu ? <i className="bi-cart-fill me-2"></i> : null}
+            <strong>Ventas</strong>
+          </Nav.Link>
+          <Nav.Link
+            onClick={() => manejarNavegacion("/dashboard-ventas")}
+            className={mostrarMenu ? "color-texto-marca" : "text-white"}
+          >
+            {mostrarMenu ? <i className="bi-bar-chart-fill me-2"></i> : null}
+            <strong>Dashboard Ventas</strong>
+          </Nav.Link>
+          <Nav.Link
+            onClick={() => manejarNavegacion("/productos")}
+            className={mostrarMenu ? "color-texto-marca" : "text-white"}    
+          >
+            {mostrarMenu ? <i className="bi-box-seam me-2"></i> : null}
+            <strong>Productos</strong>
+          </Nav.Link>
+          <Nav.Link
+            onClick={() => manejarNavegacion("/categorias")}
+            className={mostrarMenu ? "color-texto-marca" : "text-white"}
+          >
+            {mostrarMenu ? <i className="bi-tags-fill me-2"></i> : null}
+            <strong>Categorías</strong>
+          </Nav.Link>
+          <Nav.Link
+            onClick={() => manejarNavegacion("/clientes")}
+            className={mostrarMenu ? "color-texto-marca" : "text-white"}
+          >
+            {mostrarMenu ? <i className="bi-people-fill me-2"></i> : null}
+            <strong>Clientes</strong>
+          </Nav.Link>
+          <Nav.Link
+            onClick={() => manejarNavegacion("/catalogo")}
+            className={mostrarMenu ? "color-texto-marca" : "text-white"}
+          >
+            {mostrarMenu ? <i className="bi-journal-bookmark-fill me-2"></i> : null}
+            <strong>Catálogo</strong>
+          </Nav.Link>
           <hr />
 
           {!mostrarMenu && (
