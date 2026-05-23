@@ -1,472 +1,276 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
-
-
-:root {
-
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
-  --color-secondary: #0f172a;
-  --color-success: #16a34a;
-  --color-danger: #dc2626;
-  --color-warning: #f59e0b;
-
-  --color-bg: #0b1120;
-  --color-surface: #ffffff;
-  --color-surface-soft: #f8fafc;
-
-  --color-text: #0f172a;
-  --color-text-light: #64748b;
-
-  --shadow-sm: 0 4px 10px rgba(15, 23, 42, .08);
-  --shadow-md: 0 8px 24px rgba(15, 23, 42, .12);
-  --shadow-lg: 0 18px 40px rgba(15, 23, 42, .18);
-
-  --radius-sm: 12px;
-  --radius-md: 18px;
-  --radius-lg: 24px;
+.margen-superior-main{
+  margin-top: 40px;
+  padding: 20px;
 }
 
-/* =========================================
+/* =========================
    BODY
-========================================= */
+========================= */
 
-body {
-
-  margin: 0;
-  padding: 0;
-
-  font-family: "Inter", sans-serif;
-
+body{
   background:
-    radial-gradient(circle at top left, #1e3a8a 0%, transparent 25%),
-    radial-gradient(circle at bottom right, #2563eb 0%, transparent 20%),
-    linear-gradient(135deg,
-      #020617 0%,
-      #0f172a 40%,
-      #111827 100%);
+    linear-gradient(
+      135deg,
+      #0f172a 0%,
+      #111827 40%,
+      #1e293b 100%
+    );
 
-  background-attachment: fixed;
-
-  color: #f8fafc;
   min-height: 100vh;
 
-  overflow-x: hidden;
+  font-family: "Poppins", sans-serif;
 }
 
-/* =========================================
-   MAIN
-========================================= */
+/* =========================
+   TITULOS
+========================= */
 
-.margen-superior-main {
-
-  margin-top: 40px;
-  padding: 25px;
-}
-
-/* =========================================
-   NAVBAR
-========================================= */
-
-.color-navbar {
-
-  background:
-    rgba(15, 23, 42, .75) !important;
-
-  backdrop-filter: blur(14px);
-
-  border-bottom:
-    1px solid rgba(255, 255, 255, .08);
-
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, .25);
-}
-
-.color-text-marca {
-
-  color: #ffffff !important;
-
-  font-size: 22px;
+.titulo-modulo{
+  color: white;
   font-weight: 800;
-
-  letter-spacing: .8px;
-
-  transition: .3s ease;
+  font-size: 2.3rem;
+  margin-bottom: 5px;
 }
 
-.color-text-marca:hover {
-
-  color: #93c5fd !important;
-
-  transform: scale(1.03);
+.subtitulo-modulo{
+  color: rgba(255,255,255,0.75);
+  font-size: 1rem;
 }
 
-/* =========================================
+/* =========================
    BOTONES
-========================================= */
+========================= */
 
-.btn {
-
-  border: none !important;
-
-  border-radius: 14px !important;
-
-  font-weight: 600 !important;
-
-  padding: 10px 18px !important;
-
-  transition: .25s ease !important;
-}
-
-.btn:hover {
-
-  transform: translateY(-2px);
-}
-
-.btn-primary {
+.btn-primary{
 
   background:
-    linear-gradient(135deg,
+    linear-gradient(
+      135deg,
       #2563eb,
-      #3b82f6) !important;
-
-  box-shadow:
-    0 8px 18px rgba(37, 99, 235, .35);
-}
-
-.btn-primary:hover {
-
-  box-shadow:
-    0 12px 24px rgba(37, 99, 235, .45);
-}
-
-.btn-success {
-
-  background:
-    linear-gradient(135deg,
-      #16a34a,
-      #22c55e) !important;
-
-  box-shadow:
-    0 8px 18px rgba(34, 197, 94, .35);
-}
-
-.btn-success:hover {
-
-  box-shadow:
-    0 12px 24px rgba(34, 197, 94, .45);
-}
-
-.btn-warning {
-
-  color: white !important;
-
-  background:
-    linear-gradient(135deg,
-      #f59e0b,
-      #f97316) !important;
-
-  box-shadow:
-    0 8px 18px rgba(249, 115, 22, .35);
-}
-
-.btn-danger {
-
-  background:
-    linear-gradient(135deg,
-      #dc2626,
-      #ef4444) !important;
-
-  box-shadow:
-    0 8px 18px rgba(239, 68, 68, .35);
-}
-
-.btn-light {
-
-  background: #ffffff !important;
-
-  color: #0f172a !important;
-
-  box-shadow: var(--shadow-sm);
-}
-
-/* =========================================
-   CARDS
-========================================= */
-
-.card {
-
-  border: none !important;
-
-  border-radius: var(--radius-lg) !important;
-
-  background:
-    rgba(255, 255, 255, .96) !important;
-
-  color: var(--color-text);
-
-  overflow: hidden;
-
-  backdrop-filter: blur(12px);
-
-  box-shadow: var(--shadow-md);
-
-  transition: .3s ease;
-}
-
-.card:hover {
-
-  transform: translateY(-5px);
-
-  box-shadow: var(--shadow-lg);
-}
-
-/* =========================================
-   LOGIN CARD
-========================================= */
-
-.login-card {
-
-  background:
-    rgba(255, 255, 255, .10) !important;
-
-  border:
-    1px solid rgba(255, 255, 255, .12) !important;
-
-  backdrop-filter: blur(18px);
-
-  color: white !important;
-
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, .35);
-}
-
-/* =========================================
-   INPUTS
-========================================= */
-
-.form-control,
-.form-select{
-
-  border-top-right-radius: 12px !important;
-  border-bottom-right-radius: 12px !important;
-
-  border:
-    1px solid rgba(0,0,0,0.08) !important;
-
-  padding: 10px 14px;
-
-  transition: 0.3s ease;
-}
-
-.form-control:focus,
-.form-select:focus {
-
-  border-color: #3b82f6 !important;
-
-  box-shadow:
-    0 0 0 .20rem rgba(59, 130, 246, .20) !important;
-}
-
-/* =========================================
-   TABLAS
-========================================= */
-
-.table {
-
-  overflow: hidden;
-
-  border-radius: 20px !important;
-
-  background: white;
-
-  margin-bottom: 0;
-}
-
-.table thead {
-
-  background:
-    linear-gradient(90deg,
-      #0f172a,
-      #1e3a8a);
-
-  color: white;
-}
-
-.table thead th {
-
-  border: none !important;
-
-  padding: 18px !important;
-
-  font-size: .95rem;
-
-  font-weight: 700;
-}
-
-.table tbody td {
-
-  padding: 18px !important;
-
-  border-color: #e2e8f0 !important;
-
-  vertical-align: middle;
-}
-
-.table tbody tr {
-
-  transition: .2s ease;
-}
-
-.table tbody tr:hover {
-
-  background:
-    rgba(37, 99, 235, .05);
-}
-
-/* =========================================
-   BADGES
-========================================= */
-
-.badge {
-
-  border-radius: 50px !important;
-
-  padding: 8px 14px !important;
-
-  font-size: .80rem !important;
-
-  font-weight: 700 !important;
-
-  letter-spacing: .3px;
-}
-
-/* =========================================
-   MODALES
-========================================= */
-
-.modal-content {
-
-  border: none !important;
-
-  border-radius: 28px !important;
-
-  overflow: hidden;
-
-  background: #ffffff;
-
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, .30);
-}
-
-.modal-header {
-
-  background:
-    linear-gradient(135deg,
-      #0f172a,
-      #1e3a8a);
-
-  color: white;
-
-  padding: 20px 24px;
-
-  border: none !important;
-}
-
-.modal-title {
-
-  font-weight: 800;
-}
-
-.modal-body {
-
-  background: #f8fafc;
-}
-
-.modal-footer {
-
-  border: none !important;
-
-  background: #ffffff;
-}
-
-/* =========================================
-   ALERTAS
-========================================= */
-
-.alert {
+      #3b82f6
+    ) !important;
 
   border: none !important;
 
   border-radius: 16px !important;
 
-  font-weight: 500;
+  box-shadow:
+    0 8px 20px rgba(37,99,235,0.35);
+
+  transition: 0.3s ease;
 }
 
-/* =========================================
-   SCROLLBAR
-========================================= */
+.btn-primary:hover{
 
-::-webkit-scrollbar {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 24px rgba(37,99,235,0.45);
+}
+
+.btn-warning{
+
+  background:
+    linear-gradient(
+      135deg,
+      #f59e0b,
+      #f97316
+    ) !important;
+
+  border: none !important;
+}
+
+.btn-danger{
+
+  background:
+    linear-gradient(
+      135deg,
+      #dc2626,
+      #ef4444
+    ) !important;
+
+  border: none !important;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.card{
+
+  border: none !important;
+
+  border-radius: 24px !important;
+
+  background:
+    rgba(255,255,255,0.95) !important;
+
+  backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.18);
+
+  transition: 0.3s ease;
+}
+
+.card:hover{
+  transform: translateY(-3px);
+}
+
+/* =========================
+   ESTADISTICAS
+========================= */
+
+.card-estadistica{
+
+  overflow: hidden;
+  position: relative;
+}
+
+.card-estadistica::before{
+
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 5px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2563eb,
+      #60a5fa
+    );
+}
+
+/* =========================
+   TABLA
+========================= */
+
+.table{
+
+  margin-bottom: 0 !important;
+}
+
+.table thead{
+
+  background:
+    linear-gradient(
+      90deg,
+      #0f172a,
+      #1e293b
+    );
+
+  color: white;
+}
+
+.table thead th{
+
+  border: none !important;
+
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
+
+  font-weight: 600;
+}
+
+.table tbody tr{
+
+  transition: 0.2s ease;
+}
+
+.table tbody tr:hover{
+
+  background-color:
+    rgba(59,130,246,0.06);
+}
+
+.table td{
+
+  vertical-align: middle;
+  border-color: #f1f5f9 !important;
+}
+
+/* =========================
+   BADGES
+========================= */
+
+.badge{
+
+  font-size: 0.8rem !important;
+
+  padding:
+    8px 14px !important;
+
+  border-radius: 50px !important;
+}
+
+/* =========================
+   IMAGENES
+========================= */
+
+.imagen-producto{
+
+  width: 65px;
+  height: 65px;
+
+  object-fit: cover;
+
+  border-radius: 18px;
+
+  border:
+    2px solid rgba(255,255,255,0.7);
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* =========================
+   BOTONES ICONOS
+========================= */
+
+.btn-icono{
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 14px !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.3s ease;
+}
+
+.btn-icono:hover{
+
+  transform: scale(1.08);
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar{
   width: 10px;
 }
 
-::-webkit-scrollbar-track {
-
-  background: #020617;
+::-webkit-scrollbar-track{
+  background: #0f172a;
 }
 
-::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb{
 
   background:
-    linear-gradient(#2563eb,
-      #60a5fa);
+    linear-gradient(
+      #2563eb,
+      #60a5fa
+    );
 
-  border-radius: 20px;
-}
-
-/* =========================================
-   ANIMACIONES
-========================================= */
-
-.fade-in {
-
-  animation: fadeIn .4s ease;
-}
-
-@keyframes fadeIn {
-
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* =========================================
-   RESPONSIVE
-========================================= */
-
-@media(max-width:768px) {
-
-  .margen-superior-main {
-    padding: 15px;
-  }
-
-  .color-text-marca {
-    font-size: 18px;
-  }
-
-  .card {
-    border-radius: 18px !important;
-  }
-
-  .table thead th,
-  .table tbody td {
-    padding: 12px !important;
-  }
+  border-radius: 10px;
 }

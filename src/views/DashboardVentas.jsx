@@ -42,7 +42,7 @@ const DashboardVentas = () => {
                 return;
             }
 
-        
+
             const { data: productosData, error: productosError } = await supabase
                 .from("productos")
                 .select("*");
@@ -138,6 +138,8 @@ const DashboardVentas = () => {
 
                         {/* KPI */}
 
+                        {/* KPI */}
+
                         <Row className="g-4 mb-5">
 
                             <Col md={4}>
@@ -150,11 +152,23 @@ const DashboardVentas = () => {
 
                                             <div>
 
-                                                <p className="kpi-dark">
-                                                    INGRESOS
+                                                <p
+                                                    className="mb-2 fw-semibold"
+                                                    style={{
+                                                        color: "#111827",
+                                                        letterSpacing: "1px",
+                                                        fontSize: ".85rem"
+                                                    }}
+                                                >
+                                                    INGRESOS TOTALES
                                                 </p>
 
-                                                <h2 className="fw-bold text-darlight">
+                                                <h2
+                                                    className="fw-bold mb-0"
+                                                    style={{
+                                                        color: "#000"
+                                                    }}
+                                                >
                                                     C$ {totalIngresos.toFixed(2)}
                                                 </h2>
 
@@ -182,11 +196,23 @@ const DashboardVentas = () => {
 
                                             <div>
 
-                                                <p className="kpi-dark">
-                                                    VENTAS
+                                                <p
+                                                    className="mb-2 fw-semibold"
+                                                    style={{
+                                                        color: "#111827",
+                                                        letterSpacing: "1px",
+                                                        fontSize: ".85rem"
+                                                    }}
+                                                >
+                                                    TOTAL DE VENTAS
                                                 </p>
 
-                                                <h2 className="fw-bold text-darlight">
+                                                <h2
+                                                    className="fw-bold mb-0"
+                                                    style={{
+                                                        color: "#000"
+                                                    }}
+                                                >
                                                     {totalVentas}
                                                 </h2>
 
@@ -214,11 +240,23 @@ const DashboardVentas = () => {
 
                                             <div>
 
-                                                <p className="kpi-dark">
+                                                <p
+                                                    className="mb-2 fw-semibold"
+                                                    style={{
+                                                        color: "#111827",
+                                                        letterSpacing: "1px",
+                                                        fontSize: ".85rem"
+                                                    }}
+                                                >
                                                     PRODUCTOS VENDIDOS
                                                 </p>
 
-                                                <h2 className="fw-bold text-darlight">
+                                                <h2
+                                                    className="fw-bold mb-0"
+                                                    style={{
+                                                        color: "#000"
+                                                    }}
+                                                >
                                                     {totalProductos}
                                                 </h2>
 
@@ -411,13 +449,6 @@ const DashboardVentas = () => {
     background:linear-gradient(135deg,#4338ca,#6366f1);
   }
 
-  .kpi-title{
-    color:rgba(255,255,255,.80);
-    margin-bottom:6px;
-    font-size:.85rem;
-    letter-spacing:1px;
-    font-weight:600;
-  }
 
   .icon-circle{
     width:62px;

@@ -2,181 +2,90 @@ import React from "react";
 import {
   Container,
   Row,
-  Col,
-  Card,
-  Button
+  Col
 } from "react-bootstrap";
-
-import { useNavigate } from "react-router-dom";
 
 const Inicio = () => {
 
-  const navigate = useNavigate();
-
   return (
 
-    <Container fluid className="p-0 bg-light min-vh-100">
+    <Container fluid className="p-0">
 
-      {/* HERO */}
+      {/* HERO SECTION */}
 
-      <div
-        className="py-5 px-4"
-        style={{
-          background: "linear-gradient(135deg, #0f172a, #1e293b)",
-          minHeight: "70vh",
-          display: "flex",
-          alignItems: "center",
-        }}
+      <section
+        className="hero-section d-flex align-items-center"
       >
 
-        <Container>
+        {/* EFECTOS */}
 
-          <Row className="align-items-center g-5">
+        <div className="circulo circulo-1"></div>
+        <div className="circulo circulo-2"></div>
+        <div className="circulo circulo-3"></div>
 
-            <Col lg={6}>
+        <Container className="position-relative">
 
-              <span
-                className="badge bg-success px-3 py-2 mb-3"
-              >
-                Sistema Inteligente
-              </span>
+          <Row className="justify-content-center">
 
-              <h1
-                className="fw-bold text-white mb-4"
-                style={{
-                  fontSize: "3.2rem",
-                  lineHeight: "1.2"
-                }}
-              >
-                Gestión Profesional para tu Negocio
-              </h1>
+            <Col lg={9} className="text-center">
 
-              <p
-                className="text-light mb-4"
-                style={{
-                  fontSize: "1.1rem"
-                }}
-              >
-                Administra productos, categorías,
-                ventas y estadísticas en tiempo real
-                desde un solo lugar.
-              </p>
-
-              <div className="d-flex gap-3 flex-wrap">
-
-                <Button
-                  variant="success"
-                  size="lg"
-                  className="rounded-3 px-4"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  Ver Dashboard
-                </Button>
-
-                <Button
-                  variant="outline-light"
-                  size="lg"
-                  className="rounded-3 px-4"
-                  onClick={() => navigate("/productos")}
-                >
-                  Gestionar Productos
-                </Button>
-
+              <div className="badge-custom mb-4">
+                ✨ Sistema Inteligente de Gestión
               </div>
 
-            </Col>
+              <h1 className="titulo-principal mb-4">
 
-            <Col lg={6}>
+                Administra tu negocio
+                <span className="texto-gradient">
+                  {" "}de forma moderna
+                </span>
 
-              <Card
-                className="border-0 shadow-lg rounded-4 p-4"
-              >
+              </h1>
 
-                <Row className="g-4">
+              <p className="descripcion-principal mx-auto">
 
-                  <Col md={6}>
+                Gestiona productos, categorías,
+                ventas e inventario desde una sola
+                plataforma rápida, elegante y eficiente.
+                Mantén el control total de tu negocio
+                en tiempo real y mejora tu productividad
+                con una experiencia moderna y profesional.
 
-                    <div className="card-mini">
+              </p>
 
-                      <div className="icono bg-primary">
-                        📦
-                      </div>
+              <div className="stats-container">
 
-                      <h5 className="fw-bold mt-3">
-                        Productos
-                      </h5>
+                <div className="stat-card">
 
-                      <p className="text-muted small">
-                        Control completo de inventario
-                      </p>
+                  <h2>100%</h2>
 
-                    </div>
+                  <span>
+                    Organización
+                  </span>
 
-                  </Col>
+                </div>
 
-                  <Col md={6}>
+                <div className="stat-card">
 
-                    <div className="card-mini">
+                  <h2>24/7</h2>
 
-                      <div className="icono bg-success">
-                        📊
-                      </div>
+                  <span>
+                    Control Total
+                  </span>
 
-                      <h5 className="fw-bold mt-3">
-                        Reportes
-                      </h5>
+                </div>
 
-                      <p className="text-muted small">
-                        Estadísticas y análisis
-                      </p>
+                <div className="stat-card">
 
-                    </div>
+                  <h2>⚡</h2>
 
-                  </Col>
+                  <span>
+                    Gestión Rápida
+                  </span>
 
-                  <Col md={6}>
+                </div>
 
-                    <div className="card-mini">
-
-                      <div className="icono bg-warning">
-                        🛒
-                      </div>
-
-                      <h5 className="fw-bold mt-3">
-                        Ventas
-                      </h5>
-
-                      <p className="text-muted small">
-                        Registro rápido y seguro
-                      </p>
-
-                    </div>
-
-                  </Col>
-
-                  <Col md={6}>
-
-                    <div className="card-mini">
-
-                      <div className="icono bg-danger">
-                        📂
-                      </div>
-
-                      <h5 className="fw-bold mt-3">
-                        Categorías
-                      </h5>
-
-                      <p className="text-muted small">
-                        Organización eficiente
-                      </p>
-
-                    </div>
-
-                  </Col>
-
-                </Row>
-
-              </Card>
+              </div>
 
             </Col>
 
@@ -184,126 +93,155 @@ const Inicio = () => {
 
         </Container>
 
-      </div>
+      </section>
 
-      {/* SECCION */}
-
-      <Container className="py-5">
-
-        <Row className="g-4">
-
-          <Col md={4}>
-
-            <Card className="border-0 shadow-sm rounded-4 p-4 h-100">
-
-              <div className="fs-1 mb-3">
-                📦
-              </div>
-
-              <h4 className="fw-bold">
-                Productos
-              </h4>
-
-              <p className="text-muted">
-                Administra inventario y stock fácilmente.
-              </p>
-
-              <Button
-                variant="dark"
-                className="rounded-3"
-                onClick={() => navigate("/productos")}
-              >
-                Ir a Productos
-              </Button>
-
-            </Card>
-
-          </Col>
-
-          <Col md={4}>
-
-            <Card className="border-0 shadow-sm rounded-4 p-4 h-100">
-
-              <div className="fs-1 mb-3">
-                📂
-              </div>
-
-              <h4 className="fw-bold">
-                Categorías
-              </h4>
-
-              <p className="text-muted">
-                Organiza tus productos correctamente.
-              </p>
-
-              <Button
-                variant="dark"
-                className="rounded-3"
-                onClick={() => navigate("/categorias")}
-              >
-                Ver Categorías
-              </Button>
-
-            </Card>
-
-          </Col>
-
-          <Col md={4}>
-
-            <Card className="border-0 shadow-sm rounded-4 p-4 h-100">
-
-              <div className="fs-1 mb-3">
-                📊
-              </div>
-
-              <h4 className="fw-bold">
-                Dashboard
-              </h4>
-
-              <p className="text-muted">
-                Analiza el rendimiento de tu negocio.
-              </p>
-
-              <Button
-                variant="dark"
-                className="rounded-3"
-                onClick={() => navigate("/dashboard")}
-              >
-                Ver Dashboard
-              </Button>
-
-            </Card>
-
-          </Col>
-
-        </Row>
-
-      </Container>
+      {/* ESTILOS */}
 
       <style>
         {`
-          .card-mini {
-            background: #f8fafc;
-            border-radius: 18px;
-            padding: 20px;
-            transition: 0.3s;
-            height: 100%;
+
+          .hero-section{
+            min-height:100vh;
+            background:
+              linear-gradient(
+                135deg,
+                #020617 0%,
+                #0f172a 40%,
+                #1e293b 100%
+              );
+            overflow:hidden;
+            position:relative;
           }
 
-          .card-mini:hover {
-            transform: translateY(-5px);
+          .titulo-principal{
+            font-size:4.5rem;
+            font-weight:800;
+            color:white;
+            line-height:1.15;
+            letter-spacing:-2px;
           }
 
-          .icono {
-            width: 55px;
-            height: 55px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
+          .texto-gradient{
+            background:linear-gradient(
+              90deg,
+              #38bdf8,
+              #22c55e,
+              #06b6d4
+            );
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
           }
+
+          .descripcion-principal{
+            color:rgba(255,255,255,0.75);
+            font-size:1.25rem;
+            line-height:2;
+            max-width:850px;
+          }
+
+          .badge-custom{
+            display:inline-block;
+            background:rgba(255,255,255,0.08);
+            border:1px solid rgba(255,255,255,0.1);
+            color:#e2e8f0;
+            padding:12px 24px;
+            border-radius:50px;
+            font-weight:600;
+            backdrop-filter:blur(10px);
+          }
+
+          .stats-container{
+            margin-top:60px;
+            display:flex;
+            justify-content:center;
+            gap:25px;
+            flex-wrap:wrap;
+          }
+
+          .stat-card{
+            width:200px;
+            padding:30px 20px;
+            border-radius:28px;
+            background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+            backdrop-filter:blur(14px);
+            transition:0.4s;
+          }
+
+          .stat-card:hover{
+            transform:translateY(-8px) scale(1.03);
+            background:rgba(255,255,255,0.1);
+          }
+
+          .stat-card h2{
+            color:white;
+            font-size:2.7rem;
+            font-weight:800;
+            margin-bottom:10px;
+          }
+
+          .stat-card span{
+            color:#cbd5e1;
+            font-size:1rem;
+          }
+
+          .circulo{
+            position:absolute;
+            border-radius:50%;
+            filter:blur(90px);
+            opacity:0.35;
+          }
+
+          .circulo-1{
+            width:350px;
+            height:350px;
+            background:#06b6d4;
+            top:-100px;
+            left:-100px;
+          }
+
+          .circulo-2{
+            width:300px;
+            height:300px;
+            background:#22c55e;
+            bottom:-120px;
+            right:-80px;
+          }
+
+          .circulo-3{
+            width:250px;
+            height:250px;
+            background:#3b82f6;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+          }
+
+          @media(max-width:992px){
+
+            .titulo-principal{
+              font-size:3.2rem;
+            }
+
+            .descripcion-principal{
+              font-size:1.1rem;
+              line-height:1.8;
+            }
+
+          }
+
+          @media(max-width:576px){
+
+            .titulo-principal{
+              font-size:2.5rem;
+            }
+
+            .stat-card{
+              width:100%;
+            }
+
+          }
+
         `}
       </style>
 
