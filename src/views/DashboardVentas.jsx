@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
     Container,
     Row,
@@ -6,8 +7,24 @@ import {
     Card,
     Spinner,
     Table,
-    Badge
+    Badge,
+    Button
 } from "react-bootstrap";
+
+import {
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+    Tooltip,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid
+} from "recharts";
+
+import * as XLSX from "xlsx";
 
 import { supabase } from "../database/supabaseconfig";
 
@@ -30,8 +47,6 @@ const DashboardVentas = () => {
 
             setLoading(true);
 
-            // VENTAS
-
             const { data: ventasData, error: ventasError } = await supabase
                 .from("ventas")
                 .select("*")
@@ -42,7 +57,6 @@ const DashboardVentas = () => {
                 return;
             }
 
-
             const { data: productosData, error: productosError } = await supabase
                 .from("productos")
                 .select("*");
@@ -51,8 +65,6 @@ const DashboardVentas = () => {
                 console.error("Error productos:", productosError);
                 return;
             }
-
-            // UNIR PRODUCTOS CON VENTAS
 
             const ventasCompletas = ventasData.map((venta) => {
 
@@ -96,6 +108,72 @@ const DashboardVentas = () => {
         0
     );
 
+    // =========================
+    // DATOS GRÁFICOS
+    // =========================
+
+    const ventasPorCategoria = [];
+
+    ventas.forEach((venta) => {
+
+        const categoria =
+            venta.producto?.categoria_producto || "Sin categoría";
+
+        const existente = ventasPorCategoria.find(
+            (item) => item.name === categoria
+        );
+
+        if (existente) {
+
+            existente.total += Number(venta.total || 0);
+
+        } else {
+
+            ventasPorCategoria.push({
+                name: categoria,
+                total: Number(venta.total || 0)
+            });
+        }
+    });
+
+    const colores = [
+        "#3b82f6",
+        "#14b8a6",
+        "#8b5cf6",
+        "#f59e0b",
+        "#ef4444"
+    ];
+
+    // =========================
+    // EXPORTAR EXCEL
+    // =========================
+
+    const descargarExcel = () => {
+
+        const datos = ventas.map((venta) => ({
+            ID: venta.id_venta,
+            Producto: venta.producto?.nombre_producto,
+            Categoria: venta.producto?.categoria_producto,
+            Cantidad: venta.cantidad,
+            Total: venta.total
+        }));
+
+        const hoja = XLSX.utils.json_to_sheet(datos);
+
+        const libro = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+            libro,
+            hoja,
+            "Ventas"
+        );
+
+        XLSX.writeFile(
+            libro,
+            "Reporte_Ventas.xlsx"
+        );
+    };
+
     return (
 
         <div className="dashboard-bg py-5">
@@ -118,6 +196,14 @@ const DashboardVentas = () => {
                         Visualiza estadísticas, ingresos y rendimiento de tu negocio
                     </p>
 
+                    <Button
+                        onClick={descargarExcel}
+                        className="mt-3 rounded-4 px-4 fw-semibold"
+                        variant="success"
+                    >
+                        Descargar Excel
+                    </Button>
+
                 </div>
 
                 {loading ? (
@@ -135,8 +221,6 @@ const DashboardVentas = () => {
                 ) : (
 
                     <>
-
-                        {/* KPI */}
 
                         {/* KPI */}
 
@@ -276,6 +360,99 @@ const DashboardVentas = () => {
 
                         </Row>
 
+                        {/* GRAFICOS */}
+
+                        <Row className="g-4 mb-5">
+
+                            <Col lg={7}>
+
+                                <Card className="border-0 shadow-lg rounded-4 h-100">
+
+                                    <Card.Body>
+
+                                        <h4 className="fw-bold mb-4">
+                                            Ventas por Categoría
+                                        </h4>
+
+                                        <ResponsiveContainer width="100%" height={320}>
+
+                                            <BarChart data={ventasPorCategoria}>
+
+                                                <CartesianGrid strokeDasharray="3 3" />
+
+                                                <XAxis dataKey="name" />
+
+                                                <YAxis />
+
+                                                <Tooltip />
+
+                                                <Bar
+                                                    dataKey="total"
+                                                    fill="#3b82f6"
+                                                    radius={[10, 10, 0, 0]}
+                                                />
+
+                                            </BarChart>
+
+                                        </ResponsiveContainer>
+
+                                    </Card.Body>
+
+                                </Card>
+
+                            </Col>
+
+                            <Col lg={5}>
+
+                                <Card className="border-0 shadow-lg rounded-4 h-100">
+
+                                    <Card.Body>
+
+                                        <h4 className="fw-bold mb-4">
+                                            Distribución de Ventas
+                                        </h4>
+
+                                        <ResponsiveContainer width="100%" height={320}>
+
+                                            <PieChart>
+
+                                                <Pie
+                                                    data={ventasPorCategoria}
+                                                    dataKey="total"
+                                                    nameKey="name"
+                                                    outerRadius={110}
+                                                    label
+                                                >
+
+                                                    {ventasPorCategoria.map((_, index) => (
+
+                                                        <Cell
+                                                            key={index}
+                                                            fill={
+                                                                colores[
+                                                                index % colores.length
+                                                                ]
+                                                            }
+                                                        />
+
+                                                    ))}
+
+                                                </Pie>
+
+                                                <Tooltip />
+
+                                            </PieChart>
+
+                                        </ResponsiveContainer>
+
+                                    </Card.Body>
+
+                                </Card>
+
+                            </Col>
+
+                        </Row>
+
                         {/* TABLA */}
 
                         <Card className="border-0 rounded-4 shadow-lg table-card">
@@ -321,82 +498,28 @@ const DashboardVentas = () => {
 
                                             <tr key={venta.id_venta}>
 
+                                                <td>#{venta.id_venta}</td>
+
                                                 <td>
-                                                    <span className="fw-semibold">
-                                                        #{venta.id_venta}
-                                                    </span>
+                                                    {venta.producto?.nombre_producto || "Sin producto"}
                                                 </td>
 
                                                 <td>
-
-                                                    <div className="d-flex align-items-center gap-2">
-
-                                                        {venta.producto?.url_imagen ? (
-
-                                                            <img
-                                                                src={venta.producto.url_imagen}
-                                                                alt={venta.producto.nombre_producto}
-                                                                style={{
-                                                                    width: "50px",
-                                                                    height: "50px",
-                                                                    objectFit: "cover",
-                                                                    borderRadius: "12px"
-                                                                }}
-                                                            />
-
-                                                        ) : (
-
-                                                            <div
-                                                                className="bg-light d-flex align-items-center justify-content-center"
-                                                                style={{
-                                                                    width: "50px",
-                                                                    height: "50px",
-                                                                    borderRadius: "12px"
-                                                                }}
-                                                            >
-                                                                📦
-                                                            </div>
-
-                                                        )}
-
-                                                        <span className="fw-semibold">
-                                                            {venta.producto?.nombre_producto || "Sin producto"}
-                                                        </span>
-
-                                                    </div>
-
-                                                </td>
-
-                                                <td>
-
-                                                    <Badge bg="primary" className="px-3 py-2 rounded-pill">
-
+                                                    <Badge bg="primary">
                                                         {venta.producto?.categoria_producto || "Sin categoría"}
-
                                                     </Badge>
-
                                                 </td>
 
-                                                <td>
-
-                                                    <Badge bg="info" className="px-3 py-2 rounded-pill">
-                                                        {venta.cantidad}
-                                                    </Badge>
-
-                                                </td>
+                                                <td>{venta.cantidad}</td>
 
                                                 <td className="fw-bold text-success">
-
                                                     C$ {Number(venta.total).toFixed(2)}
-
                                                 </td>
 
                                                 <td>
-
-                                                    <Badge bg="success" className="px-3 py-2 rounded-pill">
+                                                    <Badge bg="success">
                                                         Completada
                                                     </Badge>
-
                                                 </td>
 
                                             </tr>
@@ -417,92 +540,51 @@ const DashboardVentas = () => {
 
             </Container>
 
-            {/* ESTILOS */}
-
             <style>{`
 
-  .dashboard-bg{
-    min-height:100vh;
-    background:
-      linear-gradient(135deg,#0b1120,#111827,#1e293b);
-  }
+            .dashboard-bg{
+                min-height:100vh;
+                background:
+                linear-gradient(135deg,#0b1120,#111827,#1e293b);
+            }
 
-  .kpi-card{
-    overflow:hidden;
-    transition:.3s;
-    border:none;
-  }
+            .kpi-card{
+                overflow:hidden;
+                transition:.3s;
+            }
 
-  .kpi-card:hover{
-    transform:translateY(-6px);
-  }
+            .kpi-card:hover{
+                transform:translateY(-6px);
+            }
 
-  .ingresos-card{
-    background:linear-gradient(135deg,#0f766e,#14b8a6);
-  }
+            .ingresos-card{
+                background:linear-gradient(135deg,#0f766e,#14b8a6);
+            }
 
-  .ventas-card{
-    background:linear-gradient(135deg,#1d4ed8,#3b82f6);
-  }
+            .ventas-card{
+                background:linear-gradient(135deg,#1d4ed8,#3b82f6);
+            }
 
-  .productos-card{
-    background:linear-gradient(135deg,#4338ca,#6366f1);
-  }
+            .productos-card{
+                background:linear-gradient(135deg,#4338ca,#6366f1);
+            }
 
+            .icon-circle{
+                width:62px;
+                height:62px;
+                border-radius:18px;
+                background:rgba(255,255,255,.12);
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:1.6rem;
+            }
 
-  .icon-circle{
-    width:62px;
-    height:62px;
-    border-radius:18px;
-    background:rgba(255,255,255,.12);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:1.6rem;
-    backdrop-filter:blur(6px);
-  }
+            .table-card{
+                background:#fff;
+            }
 
-  .table-card{
-    background:#ffffff;
-    border:1px solid #e2e8f0;
-  }
-
-  .custom-table thead{
-    background:#f8fafc;
-  }
-
-  .custom-table thead th{
-    border:none;
-    padding:16px;
-    color:#0f172a;
-    font-weight:700;
-    font-size:.95rem;
-  }
-
-  .custom-table tbody td{
-    padding:16px;
-    border-color:#e2e8f0;
-    vertical-align:middle;
-  }
-
-  .custom-table tbody tr{
-    transition:.2s ease;
-  }
-
-  .custom-table tbody tr:hover{
-    background:#f8fafc;
-  }
-
-  .badge{
-    font-size:.85rem;
-    font-weight:600;
-  }
-
-  h1,h2,h3,h4,h5{
-    letter-spacing:-0.5px;
-  }
-
-`}</style>
+            `}</style>
 
         </div>
     );
