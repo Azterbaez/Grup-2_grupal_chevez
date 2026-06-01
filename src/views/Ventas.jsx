@@ -1,549 +1,881 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Row,
-  Col,
+ Col,
   Button,
-  Table,
-  Spinner,
-  Card,
-  Badge
+  Spinner
 } from "react-bootstrap";
 
 import { supabase } from "../database/supabaseconfig";
 
-import ModalRegistroVenta from "../components/Venta/ModalRegistroVenta";
-import ModalEditarVenta from "../components/Venta/ModalEditarVenta";
-import ModalEliminarVenta from "../components/Venta/ModalEliminarVenta";
+import NotificacionOperacion from "../components/NotificacionOperacion";
+import CuadroBusquedas from "../components/busquedas/CuadroBusquedas";
+import Paginacion from "../components/ordenamiento/Paginacion";
+import TablaVentas from "../components/Venta/TablaVenta";
+import TarjetaVenta from "../components/Venta/TarjetaVenta";
+import FormularioVenta from "../components/Venta/FormularioVenta";
 
 const Ventas = () => {
 
+  const [toast, setToast] = useState({
+    mostrar: false,
+    mensaje: "",
+    tipo: ""
+  });
+
   const [ventas, setVentas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [cargando, setCargando] = useState(true);
 
-  const [showRegistro, setShowRegistro] = useState(false);
-  const [showEditar, setShowEditar] = useState(false);
-  const [showEliminar, setShowEliminar] = useState(false);
+  const [mostrarFormulario, setMostrarFormulario] =
+    useState(false);
 
-  const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
+  const [ventaAEditar, setVentaAEditar] =
+    useState(null);
 
-  useEffect(() => {
-    cargarVentas();
-  }, []);
+  const [clientes, setClientes] = useState([]);
+  const [empleados, setEmpleados] = useState([]);
+  const [productos, setProductos] = useState([]);
 
-  // =========================
-  // CARGAR VENTAS
-  // =========================
+  const [clienteSeleccionado,
+    setClienteSeleccionado] = useState(null);
+
+  const [empleadoSeleccionado,
+    setEmpleadoSeleccionado] = useState(null);
+
+  const [metodoPago,
+    setMetodoPago] = useState("efectivo");
+
+  const [detalles,
+    setDetalles] = useState([]);
+
+  const [totalGeneral,
+    setTotalGeneral] = useState(0);
+
+  const [textoBusqueda,
+    setTextoBusqueda] = useState("");
+
+  const [ventasFiltradas,
+    setVentasFiltradas] = useState([]);
+
+  const [registrosPorPagina,
+    establecerRegistrosPorPagina] = useState(8);
+
+  const [paginaActual,
+    establecerPaginaActual] = useState(1);
+
+  const ventasPaginadas = ventasFiltradas.slice(
+    (paginaActual - 1) * registrosPorPagina,
+    paginaActual * registrosPorPagina
+  );
+
+  // ==================== CARGAR AUXILIARES ====================
+
+  const cargarDatosAuxiliares = async () => {
+
+    try {
+
+      const [c, e, p] = await Promise.all([
+        supabase.from("clientes").select("*"),
+        supabase.from("empleados").select("*"),
+        supabase.from("productos").select("*")
+      ]);
+
+      setClientes(c.data || []);
+      setEmpleados(e.data || []);
+      setProductos(p.data || []);
+
+    } catch (err) {
+
+      console.error(
+        "Error cargando auxiliares:",
+        err
+      );
+
+    }
+
+  };
+
+  // ==================== CARGAR VENTAS ====================
 
   const cargarVentas = async () => {
 
     try {
 
-      setLoading(true);
+      setCargando(true);
 
-      // =========================
-      // VENTAS
-      // =========================
+      // ==================== VENTAS ====================
 
-      const { data: ventasData, error: ventasError } = await supabase
+      const {
+        data: ventasData,
+        error: ventasError
+      } = await supabase
         .from("ventas")
         .select("*")
-        .order("id_venta", { ascending: false });
+        .order("id_venta", {
+          ascending: false
+        });
 
-      if (ventasError) {
-        console.error("Error ventas:", ventasError);
-        return;
-      }
+      if (ventasError) throw ventasError;
 
-      // =========================
-      // PRODUCTOS
-      // =========================
+      // ==================== CLIENTES ====================
 
-      const { data: productosData, error: productosError } = await supabase
+      const {
+        data: clientesData
+      } = await supabase
+        .from("clientes")
+        .select("*");
+
+      // ==================== EMPLEADOS ====================
+
+      const {
+        data: empleadosData
+      } = await supabase
+        .from("empleados")
+        .select("*");
+
+      // ==================== DETALLES ====================
+
+      const {
+        data: detallesData
+      } = await supabase
+        .from("detalle_venta")
+        .select("*");
+
+      // ==================== PRODUCTOS ====================
+
+      const {
+        data: productosData
+      } = await supabase
         .from("productos")
         .select("*");
 
-      if (productosError) {
-        console.error("Error productos:", productosError);
-        return;
-      }
+      // ==================== ARMAR VENTAS ====================
 
-      // =========================
-      // CATEGORIAS
-      // =========================
+      const ventasCompletas =
+        (ventasData || []).map((venta) => {
 
-      const { data: categoriasData, error: categoriasError } = await supabase
-        .from("categorias")
-        .select("*");
+          const cliente =
+            (clientesData || []).find(
+              (c) =>
+                c.id_cliente ===
+                venta.id_cliente
+            );
 
-      if (categoriasError) {
-        console.error("Error categorias:", categoriasError);
-        return;
-      }
+          const empleado =
+            (empleadosData || []).find(
+              (e) =>
+                e.id_empleado ===
+                venta.id_empleado
+            );
 
-      // =========================
-      // UNIR DATOS
-      // =========================
+          const detallesVenta =
+            (detallesData || [])
+              .filter(
+                (d) =>
+                  d.id_venta ===
+                  venta.id_venta
+              )
+              .map((detalle) => {
 
-      const ventasCompletas = ventasData.map((venta) => {
+                const producto =
+                  (productosData || []).find(
+                    (p) =>
+                      p.id_producto ===
+                      detalle.id_producto
+                  );
 
-        const producto = productosData.find(
-          (p) =>
-            String(p.id_producto) === String(venta.id_producto)
-        );
+                return {
+                  ...detalle,
+                  productos:
+                    producto || null
+                };
 
-        const categoria = categoriasData.find(
-          (c) =>
-            String(c.id_categoria) ===
-            String(producto?.categoria_producto)
-        );
+              });
 
-        return {
-          ...venta,
-          productos: {
-            ...producto,
-            nombre_categoria:
-              categoria?.nombre_categoria || "Sin categoría"
-          }
-        };
-      });
+          return {
+            ...venta,
+            clientes:
+              cliente || null,
+            empleados:
+              empleado || null,
+            detalle_venta:
+              detallesVenta
+          };
+
+        });
 
       setVentas(ventasCompletas);
 
-    } catch (error) {
+      setVentasFiltradas(
+        ventasCompletas
+      );
 
-      console.error("Error general:", error);
+    } catch (err) {
+
+      console.error(
+        "Error al cargar ventas:",
+        err
+      );
+
+      setToast({
+        mostrar: true,
+        mensaje:
+          "Error al cargar ventas",
+        tipo: "error"
+      });
 
     } finally {
 
-      setLoading(false);
+      setCargando(false);
 
     }
+
   };
 
-  // =========================
-  // ELIMINAR VENTA
-  // =========================
+  // ==================== EFECTOS ====================
 
-  const eliminarVenta = async () => {
+  useEffect(() => {
+
+    cargarVentas();
+    cargarDatosAuxiliares();
+
+  }, []);
+
+  useEffect(() => {
+
+    if (ventaAEditar) {
+
+      const cliente = clientes.find(
+        (c) =>
+          c.id_cliente ===
+          ventaAEditar.id_cliente
+      );
+
+      const empleado = empleados.find(
+        (e) =>
+          e.id_empleado ===
+          ventaAEditar.id_empleado
+      );
+
+      setClienteSeleccionado(
+        cliente || null
+      );
+
+      setEmpleadoSeleccionado(
+        empleado || null
+      );
+
+      setMetodoPago(
+        ventaAEditar.metodo_pago ||
+        "efectivo"
+      );
+
+      if (
+        ventaAEditar.detalle_venta?.length > 0
+      ) {
+
+        const detallesFormateados =
+          ventaAEditar.detalle_venta.map(
+            (d) => ({
+              id_producto:
+                d.id_producto,
+
+              nombre_producto:
+                d.productos
+                  ?.nombre_producto ||
+                "Producto",
+
+              precio:
+                d.precio,
+
+              cantidad:
+                d.cantidad
+            })
+          );
+
+        setDetalles(
+          detallesFormateados
+        );
+
+      } else {
+
+        setDetalles([]);
+
+      }
+
+    }
+
+  }, [ventaAEditar,
+      clientes,
+      empleados]);
+
+  // ==================== TOTAL ====================
+
+  useEffect(() => {
+
+    const total = detalles.reduce(
+      (sum, det) =>
+        sum +
+        (det.cantidad * det.precio),
+      0
+    );
+
+    setTotalGeneral(total);
+
+  }, [detalles]);
+
+  // ==================== BUSQUEDA ====================
+
+  useEffect(() => {
+
+    if (!textoBusqueda.trim()) {
+
+      setVentasFiltradas(ventas);
+
+    } else {
+
+      const textoLower =
+        textoBusqueda.toLowerCase();
+
+      const filtradas =
+        ventas.filter((v) =>
+
+          `${v.clientes?.nombre_cliente || ""}`
+            .toLowerCase()
+            .includes(textoLower)
+
+          ||
+
+          `${v.empleados?.nombre_empleado || ""}`
+            .toLowerCase()
+            .includes(textoLower)
+
+        );
+
+      setVentasFiltradas(filtradas);
+
+    }
+
+  }, [textoBusqueda, ventas]);
+
+  // ==================== NUEVA VENTA ====================
+
+  const abrirNuevaVenta = () => {
+
+    resetFormulario();
+    setMostrarFormulario(true);
+
+  };
+
+  // ==================== EDITAR ====================
+
+  const abrirEdicion = (venta) => {
+
+    setVentaAEditar(venta);
+    setMostrarFormulario(true);
+
+  };
+
+  // ==================== RESET ====================
+
+  const resetFormulario = () => {
+
+    setClienteSeleccionado(null);
+
+    setEmpleadoSeleccionado(null);
+
+    setMetodoPago("efectivo");
+
+    setDetalles([]);
+
+    setVentaAEditar(null);
+
+  };
+
+  // ==================== DETALLES ====================
+
+  const agregarDetalle = (
+    producto,
+    cantidad
+  ) => {
+
+    if (!producto || !cantidad)
+      return;
+
+    setDetalles((prev) => {
+
+      const existe = prev.find(
+        (d) =>
+          d.id_producto ===
+          producto.id_producto
+      );
+
+      if (existe) {
+
+        return prev.map((d) =>
+          d.id_producto ===
+          producto.id_producto
+            ? {
+                ...d,
+                cantidad:
+                  d.cantidad +
+                  cantidad
+              }
+            : d
+        );
+
+      }
+
+      return [
+        ...prev,
+        {
+          id_producto:
+            producto.id_producto,
+
+          nombre_producto:
+            producto.nombre_producto,
+
+          precio:
+            producto.precio_venta,
+
+          cantidad
+        }
+      ];
+
+    });
+
+  };
+
+  const eliminarDetalle = (
+    id_producto
+  ) => {
+
+    setDetalles((prev) =>
+      prev.filter(
+        (d) =>
+          d.id_producto !==
+          id_producto
+      )
+    );
+
+  };
+
+  const actualizarCantidad = (
+    id_producto,
+    nuevaCantidad
+  ) => {
+
+    if (nuevaCantidad < 1)
+      return;
+
+    setDetalles((prev) =>
+      prev.map((d) =>
+        d.id_producto ===
+        id_producto
+          ? {
+              ...d,
+              cantidad:
+                nuevaCantidad
+            }
+          : d
+      )
+    );
+
+  };
+
+  // ==================== GUARDAR ====================
+
+  const guardarVenta = async () => {
+
+    if (
+      !clienteSeleccionado ||
+      !empleadoSeleccionado ||
+      detalles.length === 0
+    ) {
+
+      setToast({
+        mostrar: true,
+        mensaje:
+          "Faltan datos obligatorios",
+        tipo: "advertencia"
+      });
+
+      return;
+
+    }
 
     try {
 
-      const { error } = await supabase
-        .from("ventas")
-        .delete()
-        .eq("id_venta", ventaSeleccionada.id_venta);
+      if (ventaAEditar) {
 
-      if (error) {
-        console.error("Error eliminando venta:", error);
-        return;
+        const {
+          error: updateError
+        } = await supabase
+          .from("ventas")
+          .update({
+            id_cliente:
+              clienteSeleccionado.id_cliente,
+
+            id_empleado:
+              empleadoSeleccionado.id_empleado,
+
+            total:
+              totalGeneral
+          })
+          .eq(
+            "id_venta",
+            ventaAEditar.id_venta
+          );
+
+        if (updateError)
+          throw updateError;
+
+        const {
+          error: deleteError
+        } = await supabase
+          .from("detalle_venta")
+          .delete()
+          .eq(
+            "id_venta",
+            ventaAEditar.id_venta
+          );
+
+        if (deleteError)
+          throw deleteError;
+
+        const detallesInsert =
+          detalles.map((d) => ({
+            id_venta:
+              ventaAEditar.id_venta,
+
+            id_producto:
+              d.id_producto,
+
+            cantidad:
+              d.cantidad,
+
+            precio:
+              d.precio,
+
+            subtotal:
+              d.cantidad * d.precio
+          }));
+
+        const {
+          error: detalleError
+        } = await supabase
+          .from("detalle_venta")
+          .insert(detallesInsert);
+
+        if (detalleError)
+          throw detalleError;
+
+        setToast({
+          mostrar: true,
+          mensaje:
+            "Venta actualizada exitosamente",
+          tipo: "exito"
+        });
+
+      } else {
+
+        const {
+          data: ventaData,
+          error: ventaError
+        } = await supabase
+          .from("ventas")
+          .insert([
+            {
+              id_cliente:
+                clienteSeleccionado.id_cliente,
+
+              id_empleado:
+                empleadoSeleccionado.id_empleado,
+
+              total:
+                totalGeneral
+            }
+          ])
+          .select()
+          .single();
+
+        if (ventaError)
+          throw ventaError;
+
+        const detallesInsert =
+          detalles.map((d) => ({
+            id_venta:
+              ventaData.id_venta,
+
+            id_producto:
+              d.id_producto,
+
+            cantidad:
+              d.cantidad,
+
+            precio:
+              d.precio,
+
+            subtotal:
+              d.cantidad * d.precio
+          }));
+
+        const {
+          error: detalleError
+        } = await supabase
+          .from("detalle_venta")
+          .insert(detallesInsert);
+
+        if (detalleError)
+          throw detalleError;
+
+        setToast({
+          mostrar: true,
+          mensaje:
+            "Venta registrada exitosamente",
+          tipo: "exito"
+        });
+
       }
 
-      setShowEliminar(false);
+      resetFormulario();
 
-      cargarVentas();
+      setMostrarFormulario(false);
 
-    } catch (error) {
+      await cargarVentas();
 
-      console.error("Error al eliminar:", error);
+    } catch (err) {
+
+      console.error(
+        "Error al guardar venta:",
+        err
+      );
+
+      setToast({
+        mostrar: true,
+        mensaje:
+          "Error al guardar la venta",
+        tipo: "error"
+      });
+
     }
+
   };
+
+  // ==================== BUSQUEDA ====================
+
+  const manejarBusqueda = (e) => {
+
+    setTextoBusqueda(
+      e.target.value
+    );
+
+  };
+
+  // ==================== RETURN ====================
 
   return (
 
-    <Container fluid className="py-4 px-lg-5">
+    <Container
+      className="mt-3 p-4 rounded-4 shadow-sm"
+    >
 
-      {/* HEADER */}
+      <Row className="align-items-center mb-3">
 
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <Col xs={8} lg={8}>
 
-        <div>
+          <h3 className="mb-0 fw-bold text-dark">
 
-          <h1 className="fw-bold mb-1 text-white">
-            Gestión de Ventas
-          </h1>
+            <i className="bi bi-receipt-cutoff me-2 text-primary"></i>
 
-          <p className="text-white mb-0">
-            Administra y controla todas las ventas registradas
-          </p>
+            Ventas
 
-        </div>
+          </h3>
 
-        <Button
-          variant="primary"
-          size="lg"
-          className="rounded-4 px-4 shadow-sm fw-semibold"
-          onClick={() => setShowRegistro(true)}
+        </Col>
+
+        <Col
+          xs={4}
+          lg={4}
+          className="text-end"
         >
-          ➕ Nueva Venta
-        </Button>
 
-      </div>
+          <Button
+            onClick={abrirNuevaVenta}
+          >
 
-      {/* ESTADÍSTICAS */}
+            <i className="bi bi-plus-lg"></i>
 
-      <Row className="g-4 mb-4">
+            <span className="ms-2">
+              Nueva Venta
+            </span>
 
-        <Col md={4}>
-
-          <Card className="border-0 shadow-sm rounded-4 h-100">
-
-            <Card.Body>
-
-              <div className="d-flex justify-content-between align-items-center">
-
-                <div>
-
-                  <p className="text-muted mb-1">
-                    Total Ventas
-                  </p>
-
-                  <h3 className="fw-bold mb-0">
-                    {ventas.length}
-                  </h3>
-
-                </div>
-
-                <div
-                  className="d-flex align-items-center justify-content-center rounded-4"
-                  style={{
-                    width: "60px",
-                    height: "60px",
-                    background: "rgba(59,130,246,0.12)",
-                    fontSize: "1.8rem"
-                  }}
-                >
-                  🧾
-                </div>
-
-              </div>
-
-            </Card.Body>
-
-          </Card>
-
-        </Col>
-
-        <Col md={4}>
-
-          <Card className="border-0 shadow-sm rounded-4 h-100">
-
-            <Card.Body>
-
-              <div className="d-flex justify-content-between align-items-center">
-
-                <div>
-
-                  <p className="text-muted mb-1">
-                    Productos Vendidos
-                  </p>
-
-                  <h3 className="fw-bold mb-0">
-                    {ventas.reduce((acc, venta) => acc + venta.cantidad, 0)}
-                  </h3>
-
-                </div>
-
-                <div
-                  className="d-flex align-items-center justify-content-center rounded-4"
-                  style={{
-                    width: "60px",
-                    height: "60px",
-                    background: "rgba(16,185,129,0.12)",
-                    fontSize: "1.8rem"
-                  }}
-                >
-                  📦
-                </div>
-
-              </div>
-
-            </Card.Body>
-
-          </Card>
-
-        </Col>
-
-        <Col md={4}>
-
-          <Card className="border-0 shadow-sm rounded-4 h-100">
-
-            <Card.Body>
-
-              <div className="d-flex justify-content-between align-items-center">
-
-                <div>
-
-                  <p className="text-muted mb-1">
-                    Ingresos Totales
-                  </p>
-
-                  <h3 className="fw-bold text-success mb-0">
-                    C$ {ventas.reduce((acc, venta) => acc + parseFloat(venta.total || 0), 0).toFixed(2)}
-                  </h3>
-
-                </div>
-
-                <div
-                  className="d-flex align-items-center justify-content-center rounded-4"
-                  style={{
-                    width: "60px",
-                    height: "60px",
-                    background: "rgba(34,197,94,0.12)",
-                    fontSize: "1.8rem"
-                  }}
-                >
-                  💰
-                </div>
-
-              </div>
-
-            </Card.Body>
-
-          </Card>
+          </Button>
 
         </Col>
 
       </Row>
 
-      {/* LOADING */}
+      <hr />
 
-      {loading ? (
+      <Row className="mb-4">
 
-        <div className="text-center py-5">
+        <Col md={6} lg={5}>
 
-          <Spinner
-            animation="border"
-            variant="primary"
+          <CuadroBusquedas
+            textoBusqueda={
+              textoBusqueda
+            }
+            manejarCambioBusqueda={
+              manejarBusqueda
+            }
+            placeholder="Buscar por cliente o empleado..."
           />
 
-          <p className="mt-3 text-muted">
-            Cargando ventas...
-          </p>
+        </Col>
 
-        </div>
+      </Row>
+
+      {cargando ? (
+
+        <Row className="text-center my-5">
+
+          <Col>
+
+            <Spinner
+              animation="border"
+              variant="primary"
+            />
+
+            <p className="mt-3">
+              Cargando ventas...
+            </p>
+
+          </Col>
+
+        </Row>
 
       ) : (
 
-        <div className="d-none d-lg-block">
+        <Row>
 
-          <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
+          <Col
+            xs={12}
+            className="d-lg-none"
+          >
 
-            <div className="p-4 border-bottom bg-white">
+            <TarjetaVenta
+              ventas={
+                ventasPaginadas
+              }
+              abrirEdicion={
+                abrirEdicion
+              }
+            />
 
-              <h5 className="fw-bold mb-0">
-                Historial de Ventas
-              </h5>
+          </Col>
 
-            </div>
+          <Col
+            lg={12}
+            className="d-none d-lg-block"
+          >
 
-            <Table hover responsive className="align-middle mb-0">
+            <TablaVentas
+              ventas={
+                ventasPaginadas
+              }
+              abrirEdicion={
+                abrirEdicion
+              }
+            />
 
-              <thead
-                style={{
-                  background: "#0f172a",
-                  color: "white"
-                }}
-              >
+          </Col>
 
-                <tr>
-
-                  <th className="ps-4">#</th>
-                  <th>Producto</th>
-                  <th>Categoría</th>
-                  <th>Cantidad</th>
-                  <th>Total</th>
-                  <th className="text-center">Acciones</th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {ventas.length > 0 ? (
-
-                  ventas.map((venta) => (
-
-                    <tr key={venta.id_venta}>
-
-                      <td className="ps-4 fw-semibold">
-                        #{venta.id_venta}
-                      </td>
-
-                      <td>
-
-                        <div className="d-flex align-items-center gap-3">
-
-                          {venta.productos?.url_imagen ? (
-
-                            <img
-                              src={venta.productos.url_imagen}
-                              alt={venta.productos.nombre_producto}
-                              style={{
-                                width: "65px",
-                                height: "65px",
-                                objectFit: "cover",
-                                borderRadius: "16px"
-                              }}
-                            />
-
-                          ) : (
-
-                            <div
-                              className="bg-light d-flex align-items-center justify-content-center"
-                              style={{
-                                width: "65px",
-                                height: "65px",
-                                borderRadius: "16px",
-                                fontSize: "1.5rem"
-                              }}
-                            >
-                              📦
-                            </div>
-
-                          )}
-
-                          <div>
-
-                            <h6 className="mb-1 fw-bold">
-                              {venta.productos?.nombre_producto || "Sin producto"}
-                            </h6>
-
-                            <small className="text-muted">
-                              Venta registrada
-                            </small>
-
-                          </div>
-
-                        </div>
-
-                      </td>
-
-                      <td>
-
-                        <Badge
-                          bg="light"
-                          text="dark"
-                          className="px-3 py-2 rounded-pill border"
-                        >
-                          {venta.productos?.nombre_categoria || "Sin categoría"}
-                        </Badge>
-
-                      </td>
-
-                      <td className="fw-semibold">
-                        {venta.cantidad}
-                      </td>
-
-                      <td className="fw-bold text-success">
-                        C$ {parseFloat(venta.total || 0).toFixed(2)}
-                      </td>
-
-                      <td>
-
-                        <div className="d-flex justify-content-center gap-2">
-
-                          <Button
-                            variant="light"
-                            className="rounded-circle shadow-sm"
-                            style={{
-                              width: "42px",
-                              height: "42px"
-                            }}
-                            onClick={() => {
-                              setVentaSeleccionada(venta);
-                              setShowEditar(true);
-                            }}
-                          >
-                            ✏️
-                          </Button>
-
-                          <Button
-                            variant="light"
-                            className="rounded-circle shadow-sm"
-                            style={{
-                              width: "42px",
-                              height: "42px"
-                            }}
-                            onClick={() => {
-                              setVentaSeleccionada(venta);
-                              setShowEliminar(true);
-                            }}
-                          >
-                            🗑️
-                          </Button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-
-                  ))
-
-                ) : (
-
-                  <tr>
-
-                    <td colSpan="6" className="text-center py-5">
-
-                      <div className="py-4">
-
-                        <div style={{ fontSize: "4rem" }}>
-                          📊
-                        </div>
-
-                        <h4 className="fw-bold mt-3">
-                          No hay ventas registradas
-                        </h4>
-
-                        <p className="text-muted">
-                          Comienza agregando una nueva venta
-                        </p>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
-                )}
-
-              </tbody>
-
-            </Table>
-
-          </Card>
-
-        </div>
+        </Row>
 
       )}
 
-      {/* MODALES */}
+      {ventasFiltradas.length > 0 && (
 
-      <ModalRegistroVenta
-        show={showRegistro}
-        onHide={() => setShowRegistro(false)}
-        onSuccess={cargarVentas}
+        <Paginacion
+          registrosPorPagina={
+            registrosPorPagina
+          }
+          totalRegistros={
+            ventasFiltradas.length
+          }
+          paginaActual={
+            paginaActual
+          }
+          establecerPaginaActual={
+            establecerPaginaActual
+          }
+          establecerRegistrosPorPagina={
+            establecerRegistrosPorPagina
+          }
+        />
+
+      )}
+
+      <FormularioVenta
+        show={mostrarFormulario}
+        onHide={() => {
+          setMostrarFormulario(false);
+          resetFormulario();
+        }}
+        clientes={clientes}
+        empleados={empleados}
+        productos={productos}
+        clienteSeleccionado={
+          clienteSeleccionado
+        }
+        setClienteSeleccionado={
+          setClienteSeleccionado
+        }
+        empleadoSeleccionado={
+          empleadoSeleccionado
+        }
+        setEmpleadoSeleccionado={
+          setEmpleadoSeleccionado
+        }
+        metodoPago={metodoPago}
+        setMetodoPago={
+          setMetodoPago
+        }
+        detalles={detalles}
+        totalGeneral={totalGeneral}
+        agregarDetalle={
+          agregarDetalle
+        }
+        eliminarDetalle={
+          eliminarDetalle
+        }
+        actualizarCantidad={
+          actualizarCantidad
+        }
+        guardarVenta={guardarVenta}
+        ventaAEditar={
+          ventaAEditar
+        }
       />
 
-      <ModalEditarVenta
-        show={showEditar}
-        onHide={() => setShowEditar(false)}
-        venta={ventaSeleccionada}
-        onSuccess={cargarVentas}
-      />
-
-      <ModalEliminarVenta
-        show={showEliminar}
-        onHide={() => setShowEliminar(false)}
-        onConfirmar={eliminarVenta}
-        venta={ventaSeleccionada}
+      <NotificacionOperacion
+        mostrar={toast.mostrar}
+        mensaje={toast.mensaje}
+        tipo={toast.tipo}
+        onCerrar={() =>
+          setToast({
+            ...toast,
+            mostrar: false
+          })
+        }
       />
 
     </Container>
+
   );
+
 };
 
 export default Ventas;

@@ -13,6 +13,7 @@ import Productos from "./views/Productos";
 import Categorias from "./views/Categorias";
 import Ventas from "./views/Ventas";
 import Catalogo from "./views/Catalogo";
+import Empleado from "./views/Empleado";
 import DashboardVentas from "./views/DashboardVentas";
 import RutaProtegida from "./components/rutas/RutasProtegida";
 import Pagina404 from "./views/pagina404";
@@ -78,6 +79,17 @@ const App = () => {
                         </RutaProtegida>
                       }
                     />  
+
+                  {/* EMPLEADOS */}
+
+                  <Route
+                    path="/empleados"
+                    element={
+                      <RutaProtegida>
+                        <Empleado />
+                      </RutaProtegida>
+                    }
+                  />
 
                   {/* CLIENTES */}
 

@@ -11,14 +11,38 @@ import {
 
 import { supabase } from "../../database/supabaseconfig";
 
-const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
+const ModalEditarVenta = ({
+  show,
+  onHide,
+  venta,
+  onSuccess
+}) => {
 
   const [form, setForm] = useState({});
   const [productos, setProductos] = useState([]);
 
   useEffect(() => {
 
-    setForm(venta || {});
+    if (venta) {
+
+      const detalle =
+        venta.detalle_venta?.[0] || {};
+
+      setForm({
+        id_producto:
+          detalle.id_producto || "",
+
+        cantidad:
+          detalle.cantidad || 1,
+
+        total:
+          venta.total || 0,
+
+        productos:
+          detalle.productos || null
+      });
+
+    }
 
     cargarProductos();
 
@@ -29,14 +53,23 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
     const { data, error } = await supabase
       .from("productos")
       .select("*")
-      .order("nombre_producto", { ascending: true });
+      .order("nombre_producto", {
+        ascending: true
+      });
 
     if (error) {
-      console.log("Error productos:", error);
+
+      console.log(
+        "Error productos:",
+        error
+      );
+
       return;
+
     }
 
     setProductos(data || []);
+
   };
 
   const handleProducto = (e) => {
@@ -44,51 +77,119 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
     const id = parseInt(e.target.value);
 
     const producto = productos.find(
-      (p) => p.id_producto === id
+      (p) =>
+        p.id_producto === id
     );
 
-    const precio = parseFloat(producto?.precio_venta || 0);
+    const precio = parseFloat(
+      producto?.precio_venta || 0
+    );
+
+    const cantidad =
+      form.cantidad || 1;
 
     setForm({
       ...form,
       id_producto: id,
       productos: producto,
-      cantidad: form.cantidad || 1,
-      total: (form.cantidad || 1) * precio
+      total: cantidad * precio
     });
+
   };
 
   const handleCantidad = (e) => {
 
-    const cantidad = parseInt(e.target.value) || 1;
+    const cantidad =
+      parseInt(e.target.value) || 1;
 
-    const precio = form.productos?.precio_venta || 0;
+    const precio =
+      form.productos?.precio_venta || 0;
 
     setForm({
       ...form,
       cantidad,
       total: cantidad * precio
     });
+
   };
 
   const actualizar = async () => {
 
-    const { error } = await supabase
-      .from("ventas")
-      .update({
-        id_producto: form.id_producto,
-        cantidad: form.cantidad,
-        total: form.total
-      })
-      .eq("id_venta", venta.id_venta);
+    try {
 
-    if (error) {
-      console.log("Error actualizando venta:", error);
-      return;
+      // ACTUALIZAR TOTAL EN VENTAS
+
+      const { error: ventaError } =
+        await supabase
+          .from("ventas")
+          .update({
+            total: form.total
+          })
+          .eq(
+            "id_venta",
+            venta.id_venta
+          );
+
+      if (ventaError)
+        throw ventaError;
+
+      // ELIMINAR DETALLES ANTERIORES
+
+      const {
+        error: deleteError
+      } = await supabase
+        .from("detalle_venta")
+        .delete()
+        .eq(
+          "id_venta",
+          venta.id_venta
+        );
+
+      if (deleteError)
+        throw deleteError;
+
+      // INSERTAR NUEVO DETALLE
+
+      const {
+        error: detalleError
+      } = await supabase
+        .from("detalle_venta")
+        .insert([
+          {
+            id_venta:
+              venta.id_venta,
+
+            id_producto:
+              form.id_producto,
+
+            cantidad:
+              form.cantidad,
+
+            precio_unitario:
+              form.productos
+                ?.precio_venta || 0,
+
+            subtotal:
+              form.total
+          }
+        ]);
+
+      if (detalleError)
+        throw detalleError;
+
+      onHide();
+
+      onSuccess();
+
+    } catch (error) {
+
+      console.log(
+        "Error actualizando venta:",
+        error
+      );
+
     }
 
-    onHide();
-    onSuccess();
   };
 
   if (!venta) return null;
@@ -108,7 +209,9 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
       >
 
         <Modal.Title className="fw-bold fs-3">
+
           ✏️ Editar Venta
+
         </Modal.Title>
 
       </Modal.Header>
@@ -132,7 +235,10 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
               {form.productos?.url_imagen ? (
 
                 <Image
-                  src={form.productos.url_imagen}
+                  src={
+                    form.productos
+                      .url_imagen
+                  }
                   fluid
                   style={{
                     width: "100%",
@@ -145,7 +251,11 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
 
                 <div className="d-flex align-items-center justify-content-center h-100">
 
-                  <span style={{ fontSize: "5rem" }}>
+                  <span
+                    style={{
+                      fontSize: "5rem"
+                    }}
+                  >
                     📦
                   </span>
 
@@ -170,12 +280,18 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
                 <Form.Group className="mb-4">
 
                   <Form.Label className="fw-semibold">
+
                     Producto
+
                   </Form.Label>
 
                   <Form.Select
-                    value={form.id_producto || ""}
-                    onChange={handleProducto}
+                    value={
+                      form.id_producto || ""
+                    }
+                    onChange={
+                      handleProducto
+                    }
                     size="lg"
                     className="rounded-3"
                   >
@@ -187,10 +303,16 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
                     {productos.map((p) => (
 
                       <option
-                        key={p.id_producto}
-                        value={p.id_producto}
+                        key={
+                          p.id_producto
+                        }
+                        value={
+                          p.id_producto
+                        }
                       >
+
                         {p.nombre_producto}
+
                       </option>
 
                     ))}
@@ -204,14 +326,22 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
                 <div className="mb-4">
 
                   <Form.Label className="fw-semibold d-block">
+
                     Categoría
+
                   </Form.Label>
 
                   <Badge
                     bg="primary"
                     className="px-3 py-2 fs-6"
                   >
-                    {form.productos?.categoria_producto || "Sin categoría"}
+
+                    {
+                      form.productos
+                        ?.categoria_producto ||
+                      "Sin categoría"
+                    }
+
                   </Badge>
 
                 </div>
@@ -221,14 +351,20 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
                 <Form.Group className="mb-4">
 
                   <Form.Label className="fw-semibold">
+
                     Cantidad
+
                   </Form.Label>
 
                   <Form.Control
                     type="number"
                     min="1"
-                    value={form.cantidad || ""}
-                    onChange={handleCantidad}
+                    value={
+                      form.cantidad || ""
+                    }
+                    onChange={
+                      handleCantidad
+                    }
                     size="lg"
                     className="rounded-3"
                   />
@@ -240,11 +376,15 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
                 <Form.Group>
 
                   <Form.Label className="fw-semibold">
+
                     Total
+
                   </Form.Label>
 
                   <Form.Control
-                    value={`C$ ${parseFloat(form.total || 0).toFixed(2)}`}
+                    value={`C$ ${parseFloat(
+                      form.total || 0
+                    ).toFixed(2)}`}
                     disabled
                     size="lg"
                     className="fw-bold text-success rounded-3"
@@ -269,7 +409,9 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
           onClick={onHide}
           className="px-4 py-2 rounded-3"
         >
+
           Cancelar
+
         </Button>
 
         <Button
@@ -277,13 +419,17 @@ const ModalEditarVenta = ({ show, onHide, venta, onSuccess }) => {
           onClick={actualizar}
           className="px-4 py-2 rounded-3 shadow-sm"
         >
+
           💾 Guardar Cambios
+
         </Button>
 
       </Modal.Footer>
 
     </Modal>
+
   );
+
 };
 
 export default ModalEditarVenta;

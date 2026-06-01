@@ -12,11 +12,13 @@ const TablaProducto = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
     if (productos) {
       setLoading(false);
     } else {
       setLoading(true);
     }
+
   }, [productos]);
 
   const obtenerNombreCategoria = (idCategoria) => {
@@ -33,7 +35,9 @@ const TablaProducto = ({
   return (
     <>
       {loading ? (
+
         <div className="text-center py-5">
+
           <h4 className="text-success mb-3">
             Cargando productos...
           </h4>
@@ -43,8 +47,11 @@ const TablaProducto = ({
             variant="success"
             role="status"
           />
+
         </div>
+
       ) : (
+
         <div className="table-responsive shadow rounded-4 overflow-hidden">
 
           <Table
@@ -60,7 +67,9 @@ const TablaProducto = ({
                   "linear-gradient(90deg, #198754, #157347)"
               }}
             >
+
               <tr>
+
                 <th className="py-3">ID</th>
 
                 <th className="py-3">Nombre</th>
@@ -71,6 +80,8 @@ const TablaProducto = ({
 
                 <th className="py-3">Categoría</th>
 
+                <th className="py-3">Stock</th>
+
                 <th className="py-3">Precio</th>
 
                 <th className="py-3">Imagen</th>
@@ -78,7 +89,9 @@ const TablaProducto = ({
                 <th className="text-center py-3">
                   Acciones
                 </th>
+
               </tr>
+
             </thead>
 
             <tbody>
@@ -100,11 +113,32 @@ const TablaProducto = ({
                   </td>
 
                   <td>
+
                     <Badge bg="success" pill>
+
                       {obtenerNombreCategoria(
                         producto.categoria_producto
                       )}
+
                     </Badge>
+
+                  </td>
+
+                  <td>
+
+                    <Badge
+                      bg={
+                        producto.stock <= 5
+                          ? "danger"
+                          : producto.stock <= 10
+                            ? "warning"
+                            : "primary"
+                      }
+                      pill
+                    >
+                      {producto.stock}
+                    </Badge>
+
                   </td>
 
                   <td className="fw-bold text-success">
@@ -136,7 +170,9 @@ const TablaProducto = ({
                           height: "50px"
                         }}
                       >
+
                         <i className="bi bi-image text-muted"></i>
+
                       </div>
 
                     )}
@@ -173,6 +209,7 @@ const TablaProducto = ({
           </Table>
 
         </div>
+
       )}
     </>
   );

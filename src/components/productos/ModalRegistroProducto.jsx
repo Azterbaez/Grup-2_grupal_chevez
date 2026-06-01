@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import {
   Modal,
   Button,
@@ -151,6 +152,24 @@ const ModalRegistroProducto = ({
 
               </Form.Group>
 
+              {/* STOCK */}
+              <Form.Group className="mb-3">
+
+                <Form.Label className="fw-semibold">
+                  Stock
+                </Form.Label>
+
+                <Form.Control
+                  type="number"
+                  name="stock"
+                  value={nuevoProducto.stock}
+                  onChange={manejoCambioInput}
+                  placeholder="Ingresa el stock"
+                  className="shadow-sm"
+                />
+
+              </Form.Group>
+
             </Col>
 
             <Col
@@ -225,6 +244,7 @@ const ModalRegistroProducto = ({
             !nuevoProducto.nombre_producto?.trim() ||
             !nuevoProducto.categoria_producto ||
             !nuevoProducto.precio_venta ||
+            !nuevoProducto.stock ||
             deshabilitado
           }
         >
