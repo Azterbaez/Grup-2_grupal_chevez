@@ -112,8 +112,9 @@ const Encabezado = () => {
             <strong>Empleados</strong>
           </Nav.Link>
 
-          <Nav.Link onClick={() => setMostrarChatIA(true)} className="text-white">
+          <Nav.Link onClick={() => setMostrarChatIA(true)} >
   <i className="bi bi-robot me-2"></i>
+    <strong>ChatBot</strong>
 </Nav.Link>
 
           <hr />
