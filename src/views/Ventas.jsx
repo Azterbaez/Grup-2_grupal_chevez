@@ -10,7 +10,7 @@ import {
 import { supabase } from "../database/supabaseconfig";
 
 import NotificacionOperacion from "../components/NotificacionOperacion";
-import CuadroBusquedas from "../components/busquedas/CuadroBusquedas";
+import CuadroBusquedas from "../components/busquedas/cuadroBusquedas";
 import Paginacion from "../components/ordenamiento/Paginacion";
 import TablaVentas from "../components/Venta/TablaVenta";
 import TarjetaVenta from "../components/Venta/TarjetaVenta";
