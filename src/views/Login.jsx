@@ -108,9 +108,9 @@ const Login = () => {
               </div>
 
               <h1 className="hero-title">
-                Pulpería
-                <br />
                 Chevez
+                <br />
+                Bi-Web
               </h1>
 
               <p className="hero-description">
