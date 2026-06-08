@@ -278,7 +278,7 @@ const Categorias = () => {
   };
 
   return (
-    <Container className="mt-3">
+    <Container className="mt-1 encabezado-vista">
       <Row className="align-items-center mb-3">
         <Col xs={9} sm={7} md={7} lg={7} className="d-flex align-items-center">
           <h3 className="mb-0">

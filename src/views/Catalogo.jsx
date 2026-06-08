@@ -152,7 +152,7 @@ const Catalogo = () => {
 
   return (
 
-    <Container className="py-3">
+    <Container className="mt-1 encabezado-vista py-1">
 
       {/* ENCABEZADO */}
 

@@ -174,7 +174,7 @@ const Empleados = () => {
     };
 
     return (
-        <Container className="mt-3">
+        <Container className="mt-1 encabezado-vista">
             <Row className="align-items-center mb-3">
                 <Col>
                     <h3><i className="bi-person-badge-fill me-2"></i>Empleados</h3>

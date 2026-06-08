@@ -564,14 +564,14 @@ const Productos = () => {
 
   return (
 
-    <Container className="mt-3">
+    <Container className="mt-1 encabezado-vista">
 
-      <Row className="align-items-center mb-3">
+      <Row className="align-items-center mb-0">
 
         <Col>
 
           <h3 className="mb-0">
-            <i className="bi bi-box-seam me-2"></i>
+            <i className="bi bi-box-seam me-2 text-secondary"></i>
             Productos
           </h3>
 

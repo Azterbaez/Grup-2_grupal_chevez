@@ -62,7 +62,7 @@ const Encabezado = () => {
           </Nav.Link>
 
           <Nav.Link
-            onClick={() => manejarNavegacion("/Ventas")}
+            onClick={() => manejarNavegacion("/ventas")}
             className={mostrarMenu ? "color-texto-marca" : "text-white"}  
           >
             {mostrarMenu ? <i className="bi-cart-fill me-2"></i> : null}
@@ -112,10 +112,19 @@ const Encabezado = () => {
             <strong>Empleados</strong>
           </Nav.Link>
 
+          <Nav.Link
+            onClick={() => setMostrarChatIA(true)}
+            className="btn-nav-consultas ms-lg-2"
+          >
+            <i className="bi bi-search me-1" aria-hidden />
+            Consultas
+          </Nav.Link>
+
           <Nav.Link onClick={() => setMostrarChatIA(true)} >
   <i className="bi bi-robot me-2"></i>
     <strong>ChatBot</strong>
 </Nav.Link>
+
 
           <hr />
 
@@ -148,7 +157,7 @@ const Encabezado = () => {
   }
 
   return (
-    <Navbar expand="md" fixed="top" className="color-navbar shadow-lg" variant="dark">
+    <Navbar expand="md" fixed="top" className="color-navbar" variant="dark">
       <Container>
         <Navbar.Brand
           onClick={() => manejarNavegacion("/inicio")}

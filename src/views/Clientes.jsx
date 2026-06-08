@@ -359,7 +359,7 @@ const Clientes = () => {
 
   return (
 
-    <Container className="mt-4">
+    <Container className="mt-1 encabezado-vista">
 
       {/* HEADER */}
 

@@ -1,17 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Modal, Button, Form, Spinner, Table } from 'react-bootstrap';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { supabase } from '../../database/supabaseconfig';
+import React, { useState, useRef, useEffect } from "react";
+import { Modal, Button, Form, Spinner, Table } from "react-bootstrap";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { supabase } from "../../database/supabaseconfig";
 
 const ChatIA = ({ mostrar, onCerrar }) => {
-    const [mensajes, setMensajes] = useState([]);
-    const [entrada, setEntrada] = useState('');
-    const [cargando, setCargando] = useState(false);
-    const finChatRef = useRef(null);
+  const [mensajes, setMensajes] = useState([]);
+  const [entrada, setEntrada] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const finChatRef = useRef(null);
 
-    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
-    const contextoBaseDatos = `
+  const contextoBaseDatos = `
 Sistema de ventas.
 
 Tablas disponibles:
@@ -84,26 +84,26 @@ IMPORTANTE:
 - Usa únicamente columnas existentes.
 `;
 
-    const enviarConsulta = async () => {
+  const enviarConsulta = async () => {
     if (!entrada.trim()) return;
 
     const mensajeUsuario = {
-        tipo: 'usuario',
-        contenido: entrada
+      tipo: "usuario",
+      contenido: entrada,
     };
 
-    setMensajes(prev => [...prev, mensajeUsuario]);
+    setMensajes((prev) => [...prev, mensajeUsuario]);
 
     const consultaActual = entrada;
-    setEntrada('');
+    setEntrada("");
     setCargando(true);
 
     try {
-        const modelo = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash"
-        });
+      const modelo = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+      });
 
-        const prompt = `
+      const prompt = `
 Eres un experto en PostgreSQL.
 
 ${contextoBaseDatos}
@@ -137,191 +137,212 @@ Consulta del usuario:
 "${consultaActual}"
 `;
 
-        const resultado = await modelo.generateContent(prompt);
+      const resultado = await modelo.generateContent(prompt);
 
-        let texto = resultado.response.text().trim();
+      let texto = resultado.response.text().trim();
 
-        console.log("=== RESPUESTA GEMINI ===");
-        console.log(texto);
+      texto = texto
+        .replace(/```json/gi, "")
+        .replace(/```/g, "")
+        .trim();
 
-        // Limpieza de markdown si Gemini lo devuelve
-        texto = texto
-            .replace(/```json/gi, '')
-            .replace(/```/g, '')
-            .trim();
+      let respuestaIA;
 
-        let respuestaIA;
+      try {
+        respuestaIA = JSON.parse(texto);
+      } catch {
+        const match = texto.match(/\{[\s\S]*\}/);
 
-        try {
-            respuestaIA = JSON.parse(texto);
-        } catch {
-            const match = texto.match(/\{[\s\S]*\}/);
-
-            if (!match) {
-                throw new Error(
-                    `Gemini no devolvió un JSON válido.\nRespuesta:\n${texto}`
-                );
-            }
-
-            respuestaIA = JSON.parse(match[0]);
+        if (!match) {
+          throw new Error(
+            `No se pudo interpretar la respuesta.\n${texto}`
+          );
         }
 
-        if (!respuestaIA.consulta_sql) {
-            throw new Error("La IA no devolvió una consulta SQL.");
-        }
+        respuestaIA = JSON.parse(match[0]);
+      }
 
-        let sqlLimpio = respuestaIA.consulta_sql.trim();
+      if (!respuestaIA.consulta_sql) {
+        throw new Error("La consulta no se generó correctamente.");
+      }
 
-        // Limpieza SQL
-        sqlLimpio = sqlLimpio.replace(/;\s*$/, '');
-        sqlLimpio = sqlLimpio.replace(/\)\s*\)/g, ')');
-        sqlLimpio = sqlLimpio.replace(/,\s*\)/g, ')');
+      let sqlLimpio = respuestaIA.consulta_sql.trim();
+      sqlLimpio = sqlLimpio.replace(/;\s*$/, "");
+      sqlLimpio = sqlLimpio.replace(/\)\s*\)/g, ")");
+      sqlLimpio = sqlLimpio.replace(/,\s*\)/g, ")");
 
-        console.log("=== SQL GENERADO ===");
-        console.log(sqlLimpio);
+      const { data, error } = await supabase.rpc("ejecutar_consulta_segura", {
+        query_sql: sqlLimpio,
+      });
 
-        const { data, error } = await supabase.rpc(
-            'ejecutar_consulta_segura',
-            {
-                query_sql: sqlLimpio
-            }
+      if (error) {
+        throw new Error(`Error en la consulta: ${error.message}`);
+      }
+
+      let datosExtraidos = [];
+
+      if (Array.isArray(data)) {
+        datosExtraidos = data.map((item) =>
+          item?.datos ? item.datos : item
         );
+      }
 
-        if (error) {
-            console.error("Error Supabase:", error);
-            throw new Error(`Error SQL: ${error.message}`);
-        }
+      const columnas =
+        respuestaIA.columnas?.length > 0
+          ? respuestaIA.columnas
+          : datosExtraidos.length > 0
+            ? Object.keys(datosExtraidos[0])
+            : [];
 
-        let datosExtraidos = [];
+      const mensajeRespuesta = {
+        tipo: "ia",
+        explicacion:
+          respuestaIA.explicacion || "Consulta ejecutada correctamente",
+        columnas,
+        datos: datosExtraidos,
+      };
 
-        if (Array.isArray(data)) {
-            datosExtraidos = data.map(item =>
-                item?.datos ? item.datos : item
-            );
-        }
-
-        const columnas =
-            respuestaIA.columnas?.length > 0
-                ? respuestaIA.columnas
-                : datosExtraidos.length > 0
-                ? Object.keys(datosExtraidos[0])
-                : [];
-
-        const mensajeRespuesta = {
-            tipo: 'ia',
-            explicacion:
-                respuestaIA.explicacion ||
-                "Consulta ejecutada correctamente",
-            columnas,
-            datos: datosExtraidos
-        };
-
-        setMensajes(prev => [...prev, mensajeRespuesta]);
-
+      setMensajes((prev) => [...prev, mensajeRespuesta]);
     } catch (error) {
-        console.error("ERROR COMPLETO:", error);
-
-        setMensajes(prev => [
-            ...prev,
-            {
-                tipo: 'ia',
-                explicacion:
-                    error.message ||
-                    "Ocurrió un error al procesar la consulta.",
-                error: true
-            }
-        ]);
+      setMensajes((prev) => [
+        ...prev,
+        {
+          tipo: "ia",
+          explicacion:
+            error.message || "Ocurrió un error al procesar la consulta.",
+          error: true,
+        },
+      ]);
     } finally {
-        setCargando(false);
+      setCargando(false);
     }
-};
+  };
 
-    useEffect(() => {
-        finChatRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [mensajes]);
+  useEffect(() => {
+    finChatRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensajes]);
 
-    return (
-        <Modal show={mostrar} onHide={onCerrar} size="xl" centered backdrop="static">
-            <Modal.Header closeButton>
-                <Modal.Title>Consultas Inteligentes</Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={{ height: "68vh", overflowY: "auto" }}>
-                <div className="d-flex flex-column h-100">
-                    <div className="flex-grow-1 overflow-auto mb-3 pe-2">
-                        {mensajes.length === 0 && (
-                            <div className="text-center text-muted mt-5">
-                                <h5>¿Qué información necesitas?</h5>
-                                <p className="mt-2">Ejemplos:</p>
-                                <ul className="text-start">
-                                    <li>Ventas totales de este mes</li>
-                                    <li>Los 10 productos más vendidos</li>
-                                    <li>Clientes que más han comprado</li>
-                                    <li>Ventas por empleado</li>
-                                </ul>
-                            </div>
-                        )}
+  return (
+    <Modal
+      show={mostrar}
+      onHide={onCerrar}
+      size="xl"
+      centered
+      backdrop="static"
+      className="modal-consultas"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>Consultas de datos</Modal.Title>
+      </Modal.Header>
+      <Modal.Body style={{ height: "68vh", overflowY: "auto" }}>
+        <div className="d-flex flex-column h-100">
+          <div className="flex-grow-1 overflow-auto mb-3 pe-1">
+            {mensajes.length === 0 && (
+              <div className="text-center chat-area-vacia mt-4">
+                <h5>Pregunta en lenguaje natural</h5>
+                <p className="small mb-2">
+                  El sistema traduce tu pregunta a una consulta y muestra los
+                  resultados en tabla.
+                </p>
+                <ul className="text-start">
+                  <li>Ventas totales del mes actual</li>
+                  <li>Productos con menor stock</li>
+                  <li>Clientes con más compras</li>
+                  <li>Ventas por empleado</li>
+                </ul>
+              </div>
+            )}
 
-                        {mensajes.map((msg, index) => (
-                            <div key={index} className={`mb-4 ${msg.tipo === 'usuario' ? 'text-end' : ''}`}>
-                                <div className={`d-inline-block p-3 rounded-3 ${msg.tipo === 'usuario' ? 'bg-primary text-white' : 'bg-light border'}`}
-                                    style={{ maxWidth: '90%' }}>
-                                    <strong>{msg.tipo === 'usuario' ? 'Tú:' : 'Asistente IA:'}</strong><br />
+            {mensajes.map((msg, index) => (
+              <div
+                key={index}
+                className={`mb-3 d-flex ${
+                  msg.tipo === "usuario" ? "justify-content-end" : ""
+                }`}
+              >
+                <div
+                  className={`chat-burbuja ${
+                    msg.tipo === "usuario"
+                      ? "chat-burbuja-usuario"
+                      : "chat-burbuja-asistente"
+                  } ${msg.error ? "border-danger" : ""}`}
+                >
+                  <strong>
+                    {msg.tipo === "usuario" ? "Tu consulta" : "Resultado"}
+                  </strong>
+                  {msg.tipo === "usuario" ? (
+                    <p className="mb-0">{msg.contenido}</p>
+                  ) : (
+                    msg.explicacion
+                  )}
 
-                                    {msg.tipo === 'usuario' ? (
-                                        <p className="mb-0">{msg.contenido}</p>
-                                    ) : (
-                                        msg.explicacion
-                                    )}
-
-                                    {msg.datos && msg.datos.length > 0 && (
-                                        <Table striped bordered hover size="sm" responsive className="mt-3">
-                                            <thead>
-                                                <tr>
-                                                    {msg.columnas.map((col, i) => (
-                                                        <th key={i}>{col.replace(/_/g, ' ')}</th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {msg.datos.map((fila, i) => (
-                                                    <tr key={i}>
-                                                        {msg.columnas.map((col, j) => (
-                                                            <td key={j}>{fila[col]}</td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </Table>
-                                    )}
-                                </div>
-                            </div>
+                  {msg.datos && msg.datos.length > 0 && (
+                    <Table
+                      striped
+                      bordered
+                      hover
+                      size="sm"
+                      responsive
+                      className="mt-3 mb-0 bg-white"
+                    >
+                      <thead>
+                        <tr>
+                          {msg.columnas.map((col, i) => (
+                            <th key={i}>{col.replace(/_/g, " ")}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {msg.datos.map((fila, i) => (
+                          <tr key={i}>
+                            {msg.columnas.map((col, j) => (
+                              <td key={j}>{fila[col]}</td>
+                            ))}
+                          </tr>
                         ))}
-
-                        {cargando && (
-                            <div className="text-center py-3">
-                                <Spinner animation="border" size="sm" /> Procesando consulta...
-                            </div>
-                        )}
-                        <div ref={finChatRef} />
-                    </div>
-
-                    <Form onSubmit={(e) => { e.preventDefault(); enviarConsulta(); }}>
-                        <div className="d-flex gap-2">
-                            <Form.Control
-                                value={entrada}
-                                onChange={(e) => setEntrada(e.target.value)}
-                                placeholder="Escribe tu consulta en lenguaje natural..."
-                                disabled={cargando}
-                            />
-                            <Button variant="primary" onClick={enviarConsulta} disabled={cargando || !entrada.trim()}>
-                                Enviar
-                            </Button>
-                        </div>
-                    </Form>
+                      </tbody>
+                    </Table>
+                  )}
                 </div>
-            </Modal.Body>
-        </Modal>
-    );
+              </div>
+            ))}
+
+            {cargando && (
+              <div className="text-center py-3 text-secondary small">
+                <Spinner animation="border" size="sm" className="me-2" />
+                Procesando…
+              </div>
+            )}
+            <div ref={finChatRef} />
+          </div>
+
+          <Form
+            className="chat-input-bar"
+            onSubmit={(e) => {
+              e.preventDefault();
+              enviarConsulta();
+            }}
+          >
+            <div className="d-flex gap-2">
+              <Form.Control
+                value={entrada}
+                onChange={(e) => setEntrada(e.target.value)}
+                placeholder="Ej.: ventas de la última semana por empleado"
+                disabled={cargando}
+              />
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={cargando || !entrada.trim()}
+              >
+                Enviar
+              </Button>
+            </div>
+          </Form>
+        </div>
+      </Modal.Body>
+    </Modal>
+  );
 };
 
 export default ChatIA;
