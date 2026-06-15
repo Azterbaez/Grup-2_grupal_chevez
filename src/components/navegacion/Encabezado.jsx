@@ -120,10 +120,6 @@ const Encabezado = () => {
             Consultas
           </Nav.Link>
 
-          <Nav.Link onClick={() => setMostrarChatIA(true)} >
-  <i className="bi bi-robot me-2"></i>
-    <strong>ChatBot</strong>
-</Nav.Link>
 
 
           <hr />

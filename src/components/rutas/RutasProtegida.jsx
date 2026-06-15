@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { supabase }  from "../../database/supabaseconfig";
 import { useEffect, useState } from "react";

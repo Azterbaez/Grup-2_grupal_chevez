@@ -52,6 +52,35 @@ const FormularioVenta = ({
 
   }, [show]);
 
+  const obtenerStockDisponible = (producto) => {
+
+    let stockDisponible =
+      producto.stock || 0;
+
+    if (ventaAEditar?.detalle_venta) {
+
+      const cantidadOriginal =
+        ventaAEditar.detalle_venta
+          .filter(
+            (d) =>
+              d.id_producto ===
+              producto.id_producto
+          )
+          .reduce(
+            (sum, d) =>
+              sum + d.cantidad,
+            0
+          );
+
+      stockDisponible +=
+        cantidadOriginal;
+
+    }
+
+    return stockDisponible;
+
+  };
+
   const agregarProducto = () => {
 
     setError("");
@@ -80,23 +109,36 @@ const FormularioVenta = ({
 
     }
 
-    if (cantidad < 1) {
+    if (
+      !Number.isInteger(cantidad) ||
+      cantidad <= 0
+    ) {
 
       setError(
-        "Cantidad inválida"
+        "La cantidad debe ser un numero entero mayor que cero"
       );
 
       return;
 
     }
 
+    const cantidadEnDetalle =
+      detalles.find(
+        (d) =>
+          String(d.id_producto) ===
+          String(producto.id_producto)
+      )?.cantidad || 0;
+
+    const stockDisponible =
+      obtenerStockDisponible(producto);
+
     if (
-      cantidad >
-      (producto.stock || 0)
+      cantidadEnDetalle + cantidad >
+      stockDisponible
     ) {
 
       setError(
-        "Stock insuficiente"
+        "La cantidad supera el stock disponible"
       );
 
       return;
@@ -194,8 +236,7 @@ const FormularioVenta = ({
                     value={c.id_cliente}
                   >
 
-                    {c.nombre_cliente}{" "}
-                    {c.apellido_cliente}
+                    {c.nombre_cliente}
 
                   </option>
 
@@ -470,15 +511,71 @@ const FormularioVenta = ({
                       value={
                         d.cantidad
                       }
-                      onChange={(e) =>
+                      onChange={(e) => {
+
+                        const nuevaCantidad =
+                          parseInt(
+                            e.target.value
+                          ) || 1;
+
+                        const producto =
+                          productos.find(
+                            (p) =>
+                              p.id_producto ===
+                              d.id_producto
+                          );
+
+                        if (!producto) {
+
+                          setError(
+                            "Producto invalido"
+                          );
+
+                          return;
+
+                        }
+
+                        if (
+                          !Number.isInteger(
+                            nuevaCantidad
+                          ) ||
+                          nuevaCantidad <= 0
+                        ) {
+
+                          setError(
+                            "La cantidad debe ser un numero entero mayor que cero"
+                          );
+
+                          return;
+
+                        }
+
+                        const stockDisponible =
+                          obtenerStockDisponible(
+                            producto
+                          );
+
+                        if (
+                          nuevaCantidad >
+                          stockDisponible
+                        ) {
+
+                          setError(
+                            `La cantidad supera el stock disponible para ${d.nombre_producto}`
+                          );
+
+                          return;
+
+                        }
+
+                        setError("");
+
                         actualizarCantidad(
                           d.id_producto,
-                          parseInt(
-                            e.target
-                              .value
-                          ) || 1
-                        )
-                      }
+                          nuevaCantidad
+                        );
+
+                      }}
                     />
 
                   </td>

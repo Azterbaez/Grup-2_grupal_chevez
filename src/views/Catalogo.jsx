@@ -6,6 +6,7 @@ import { supabase } from "../database/supabaseconfig";
 
 import TarjetaCatalogo from "../components/catalogo/TarjetaCatalogo";
 import CuadroBusquedas from "../components/busquedas/cuadroBusquedas";
+import Paginacion from "../components/ordenamiento/Paginacion";
 
 const Catalogo = () => {
 
@@ -18,6 +19,10 @@ const Catalogo = () => {
 
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [registrosPorPagina, setRegistrosPorPagina] =
+    useState(8);
 
 
   const cargarDatos = async () => {
@@ -126,6 +131,15 @@ const Catalogo = () => {
     textoBusqueda,
   ]);
 
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [categoriaSeleccionada, textoBusqueda]);
+
+  const productosPaginados = productosFiltrados.slice(
+    (paginaActual - 1) * registrosPorPagina,
+    paginaActual * registrosPorPagina
+  );
+
   const manejarCambioCategoria = (e) => {
     setCategoriaSeleccionada(e.target.value);
   };
@@ -165,7 +179,7 @@ const Catalogo = () => {
           </h2>
 
           <p className="text-muted mb-0">
-            Encuentra productos de belleza
+            Explora nuestro inventario disponible
           </p>
 
         </Card.Body>
@@ -285,11 +299,11 @@ const Catalogo = () => {
 
           <Row className="g-4">
 
-            {productosFiltrados.map(
+            {productosPaginados.map(
               (producto) => (
 
                 <Col
-                  xs={6}
+                  xs={12}
                   sm={6}
                   md={4}
                   lg={3}
@@ -311,6 +325,18 @@ const Catalogo = () => {
           </Row>
 
         )}
+
+      {!cargando && productosFiltrados.length > 0 && (
+        <Paginacion
+          registrosPorPagina={registrosPorPagina}
+          totalRegistros={productosFiltrados.length}
+          paginaActual={paginaActual}
+          establecerPaginaActual={setPaginaActual}
+          establecerRegistrosPorPagina={
+            setRegistrosPorPagina
+          }
+        />
+      )}
 
     </Container>
 

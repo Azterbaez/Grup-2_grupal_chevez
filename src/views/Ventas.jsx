@@ -357,6 +357,8 @@ const Ventas = () => {
 
     }
 
+    establecerPaginaActual(1);
+
   }, [textoBusqueda, ventas]);
 
   // ==================== NUEVA VENTA ====================
@@ -390,6 +392,169 @@ const Ventas = () => {
     setDetalles([]);
 
     setVentaAEditar(null);
+
+  };
+
+  // ==================== VALIDACION ====================
+
+  const obtenerStockDisponible = (
+    idProducto
+  ) => {
+
+    const producto = productos.find(
+      (p) =>
+        p.id_producto === idProducto
+    );
+
+    if (!producto) return 0;
+
+    let stockDisponible =
+      producto.stock || 0;
+
+    if (ventaAEditar?.detalle_venta) {
+
+      stockDisponible +=
+        ventaAEditar.detalle_venta
+          .filter(
+            (d) =>
+              d.id_producto ===
+              idProducto
+          )
+          .reduce(
+            (sum, d) =>
+              sum + d.cantidad,
+            0
+          );
+
+    }
+
+    return stockDisponible;
+
+  };
+
+  const validarVenta = () => {
+
+    if (
+      !clienteSeleccionado ||
+      !empleadoSeleccionado ||
+      detalles.length === 0
+    ) {
+
+      return "Faltan datos obligatorios";
+
+    }
+
+    if (!metodoPago) {
+
+      return "Debe seleccionar un metodo de pago";
+
+    }
+
+    for (const det of detalles) {
+
+      const producto = productos.find(
+        (p) =>
+          p.id_producto ===
+          det.id_producto
+      );
+
+      if (!producto) {
+
+        return `El producto seleccionado no existe: ${det.nombre_producto}`;
+
+      }
+
+      if (
+        !Number.isInteger(det.cantidad) ||
+        det.cantidad <= 0
+      ) {
+
+        return `La cantidad debe ser un numero entero mayor que cero (${det.nombre_producto})`;
+
+      }
+
+      if (
+        !Number.isFinite(det.precio) ||
+        det.precio <= 0
+      ) {
+
+        return `El precio debe ser un numero mayor que cero (${det.nombre_producto})`;
+
+      }
+
+      if (
+        det.cantidad >
+        obtenerStockDisponible(
+          det.id_producto
+        )
+      ) {
+
+        return `La cantidad supera el stock disponible (${det.nombre_producto})`;
+
+      }
+
+    }
+
+    return null;
+
+  };
+
+  const actualizarInventario = async (
+    detallesAnteriores = []
+  ) => {
+
+    const cambiosStock = new Map();
+
+    detallesAnteriores.forEach((d) => {
+
+      cambiosStock.set(
+        d.id_producto,
+        (cambiosStock.get(
+          d.id_producto
+        ) || 0) + d.cantidad
+      );
+
+    });
+
+    detalles.forEach((d) => {
+
+      cambiosStock.set(
+        d.id_producto,
+        (cambiosStock.get(
+          d.id_producto
+        ) || 0) - d.cantidad
+      );
+
+    });
+
+    for (const [
+      idProducto,
+      delta
+    ] of cambiosStock) {
+
+      if (delta === 0) continue;
+
+      const producto = productos.find(
+        (p) =>
+          p.id_producto === idProducto
+      );
+
+      if (!producto) continue;
+
+      const nuevoStock =
+        (producto.stock || 0) + delta;
+
+      const { error } = await supabase
+        .from("productos")
+        .update({ stock: nuevoStock })
+        .eq(
+          "id_producto",
+          idProducto
+        );
+
+      if (error) throw error;
+
+    }
 
   };
 
@@ -466,8 +631,37 @@ const Ventas = () => {
     nuevaCantidad
   ) => {
 
-    if (nuevaCantidad < 1)
+    if (
+      !Number.isInteger(nuevaCantidad) ||
+      nuevaCantidad <= 0
+    ) {
+
+      setToast({
+        mostrar: true,
+        mensaje:
+          "La cantidad debe ser un numero entero mayor que cero",
+        tipo: "advertencia"
+      });
+
       return;
+
+    }
+
+    if (
+      nuevaCantidad >
+      obtenerStockDisponible(id_producto)
+    ) {
+
+      setToast({
+        mostrar: true,
+        mensaje:
+          "La cantidad supera el stock disponible",
+        tipo: "advertencia"
+      });
+
+      return;
+
+    }
 
     setDetalles((prev) =>
       prev.map((d) =>
@@ -488,16 +682,14 @@ const Ventas = () => {
 
   const guardarVenta = async () => {
 
-    if (
-      !clienteSeleccionado ||
-      !empleadoSeleccionado ||
-      detalles.length === 0
-    ) {
+    const errorValidacion =
+      validarVenta();
+
+    if (errorValidacion) {
 
       setToast({
         mostrar: true,
-        mensaje:
-          "Faltan datos obligatorios",
+        mensaje: errorValidacion,
         tipo: "advertencia"
       });
 
@@ -506,6 +698,10 @@ const Ventas = () => {
     }
 
     try {
+
+      const detallesAnteriores =
+        ventaAEditar?.detalle_venta ||
+        [];
 
       if (ventaAEditar) {
 
@@ -519,6 +715,9 @@ const Ventas = () => {
 
             id_empleado:
               empleadoSeleccionado.id_empleado,
+
+            metodo_pago:
+              metodoPago,
 
             total:
               totalGeneral
@@ -571,6 +770,10 @@ const Ventas = () => {
         if (detalleError)
           throw detalleError;
 
+        await actualizarInventario(
+          detallesAnteriores
+        );
+
         setToast({
           mostrar: true,
           mensaje:
@@ -592,6 +795,9 @@ const Ventas = () => {
 
               id_empleado:
                 empleadoSeleccionado.id_empleado,
+
+              metodo_pago:
+                metodoPago,
 
               total:
                 totalGeneral
@@ -630,6 +836,8 @@ const Ventas = () => {
         if (detalleError)
           throw detalleError;
 
+        await actualizarInventario();
+
         setToast({
           mostrar: true,
           mensaje:
@@ -643,7 +851,10 @@ const Ventas = () => {
 
       setMostrarFormulario(false);
 
-      await cargarVentas();
+      await Promise.all([
+        cargarVentas(),
+        cargarDatosAuxiliares()
+      ]);
 
     } catch (err) {
 

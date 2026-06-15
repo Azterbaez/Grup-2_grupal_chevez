@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Card, Row, Col, Button } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const TarjetaVenta = ({
-  ventas,
-  abrirEdicion,
+const TarjetaCliente = ({
+  clientes,
+  abrirModalEdicion,
+  abrirModalEliminar,
 }) => {
   const [idTarjetaActiva, setIdTarjetaActiva] = useState(null);
 
@@ -23,55 +24,61 @@ const TarjetaVenta = ({
 
   return (
     <>
-      {!ventas || ventas.length === 0 ? (
+      {!clientes || clientes.length === 0 ? (
         <p className="text-center text-muted tarjeta-movil-texto-secundario py-4 mb-0">
-          No hay ventas para mostrar
+          No hay clientes para mostrar
         </p>
       ) : (
         <div>
-          {ventas.map((venta) => {
-            const tarjetaActiva = idTarjetaActiva === venta.id_venta;
+          {clientes.map((cliente) => {
+            const tarjetaActiva = idTarjetaActiva === cliente.id_cliente;
+
             return (
               <Card
-                key={venta.id_venta}
-                className="mb-3 border-0 rounded-3 shadow-sm w-100 tarjeta-venta-contenedor tarjeta-movil-contenedor"
-                onClick={() => alternarTarjetaActiva(venta.id_venta)}
+                key={cliente.id_cliente}
+                className="mb-3 border-0 rounded-3 shadow-sm w-100 tarjeta-cliente-contenedor tarjeta-movil-contenedor"
+                onClick={() => alternarTarjetaActiva(cliente.id_cliente)}
                 tabIndex={0}
                 onKeyDown={(evento) => {
                   if (evento.key === "Enter" || evento.key === " ") {
                     evento.preventDefault();
-                    alternarTarjetaActiva(venta.id_venta);
+                    alternarTarjetaActiva(cliente.id_cliente);
                   }
                 }}
-                aria-label={`Venta ${venta.id_venta}`}
+                aria-label={`Cliente ${cliente.nombre_cliente}`}
               >
                 <Card.Body
-                  className={`p-2 tarjeta-venta-cuerpo tarjeta-movil-cuerpo ${
+                  className={`p-2 tarjeta-cliente-cuerpo tarjeta-movil-cuerpo ${
                     tarjetaActiva
-                      ? "tarjeta-venta-cuerpo-activo"
-                      : "tarjeta-venta-cuerpo-inactivo"
+                      ? "tarjeta-cliente-cuerpo-activo"
+                      : "tarjeta-cliente-cuerpo-inactivo"
                   }`}
                 >
                   <Row className="align-items-center gx-2 gx-sm-3">
                     <Col xs="auto" className="px-2">
-                      <div className="bg-light d-flex align-items-center justify-content-center rounded tarjeta-venta-placeholder-imagen tarjeta-movil-placeholder">
-                        <i className="bi bi-receipt text-muted"></i>
+                      <div className="bg-light d-flex align-items-center justify-content-center rounded tarjeta-cliente-placeholder-imagen tarjeta-movil-placeholder">
+                        <i className="bi bi-person-fill text-muted"></i>
                       </div>
                     </Col>
+
                     <Col className="text-start min-w-0">
                       <div className="tarjeta-movil-texto-principal text-truncate">
-                        {venta.clientes?.nombre_cliente || "Sin cliente"}
+                        {cliente.nombre_cliente}
                       </div>
                       <div className="tarjeta-movil-texto-secundario text-truncate">
-                        {venta.fecha
-                          ? new Date(venta.fecha).toLocaleString("es-NI")
-                          : "Sin fecha"}
+                        <i className="bi bi-telephone me-1" aria-hidden />
+                        {cliente.telefono || "Sin teléfono"}
+                      </div>
+                      <div className="tarjeta-movil-texto-secundario text-truncate">
+                        <i className="bi bi-geo-alt me-1" aria-hidden />
+                        {cliente.direccion || "Sin dirección"}
                       </div>
                     </Col>
+
                     <Col xs="auto" className="text-end">
-                      <div className="tarjeta-movil-texto-destacado text-success">
-                        C$ {parseFloat(venta.total || 0).toFixed(2)}
-                      </div>
+                      <span className="badge bg-success-subtle text-success border border-success-subtle tarjeta-movil-badge">
+                        Activo
+                      </span>
                     </Col>
                   </Row>
                 </Card.Body>
@@ -81,21 +88,34 @@ const TarjetaVenta = ({
                     role="dialog"
                     aria-modal="true"
                     onClick={(e) => e.stopPropagation()}
-                    className="tarjeta-venta-capa tarjeta-movil-capa"
+                    className="tarjeta-cliente-capa tarjeta-movil-capa"
                   >
                     <div
-                      className="d-flex gap-2 tarjeta-venta-botones-capa tarjeta-movil-botones-capa"
+                      className="d-flex gap-2 tarjeta-cliente-botones-capa tarjeta-movil-botones-capa"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Button
                         variant="outline-warning"
                         size="sm"
                         onClick={() => {
-                          abrirEdicion(venta);
+                          abrirModalEdicion(cliente);
                           setIdTarjetaActiva(null);
                         }}
+                        aria-label={`Editar ${cliente.nombre_cliente}`}
                       >
                         <i className="bi bi-pencil"></i>
+                      </Button>
+
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => {
+                          abrirModalEliminar(cliente);
+                          setIdTarjetaActiva(null);
+                        }}
+                        aria-label={`Eliminar ${cliente.nombre_cliente}`}
+                      >
+                        <i className="bi bi-trash"></i>
                       </Button>
                     </div>
                   </div>
@@ -109,4 +129,4 @@ const TarjetaVenta = ({
   );
 };
 
-export default TarjetaVenta;
+export default TarjetaCliente;

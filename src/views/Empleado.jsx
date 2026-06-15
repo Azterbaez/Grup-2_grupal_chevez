@@ -8,6 +8,7 @@ import TablaEmpleados from "../components/empleados/TablaEmpleados";
 import TarjetaEmpleado from "../components/empleados/TarjetaEmpleado";
 import NotificacionOperacion from "../components/NotificacionOperacion";
 import CuadroBusquedas from "../components/busquedas/cuadroBusquedas";
+import Paginacion from "../components/ordenamiento/Paginacion";
 
 const Empleados = () => {
     const [empleados, setEmpleados] = useState([]);
@@ -18,6 +19,9 @@ const Empleados = () => {
     const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
 
     const [toast, setToast] = useState({ mostrar: false, mensaje: "", tipo: "" });
+
+    const [paginaActual, setPaginaActual] = useState(1);
+    const [registrosPorPagina, setRegistrosPorPagina] = useState(8);
 
     const [nuevoEmpleado, setNuevoEmpleado] = useState({
         nombre_empleado: "",
@@ -77,7 +81,14 @@ const Empleados = () => {
             );
             setEmpleadosFiltrados(filtrados);
         }
+
+        setPaginaActual(1);
     }, [textoBusqueda, empleados]);
+
+    const empleadosPaginados = empleadosFiltrados.slice(
+        (paginaActual - 1) * registrosPorPagina,
+        paginaActual * registrosPorPagina
+    );
 
     const agregarEmpleado = async () => {
         if (!nuevoEmpleado.nombre_empleado || !nuevoEmpleado.apellido_empleado ||
@@ -222,17 +233,27 @@ const Empleados = () => {
                 <Row>
                     <Col xs={12} className="d-lg-none">
                         <TarjetaEmpleado
-                            empleados={empleadosFiltrados}
+                            empleados={empleadosPaginados}
                             abrirModalEdicion={abrirModalEdicion}
                         />
                     </Col>
                     <Col lg={12} className="d-none d-lg-block">
                         <TablaEmpleados
-                            empleados={empleadosFiltrados}
+                            empleados={empleadosPaginados}
                             abrirModalEdicion={abrirModalEdicion}
                         />
                     </Col>
                 </Row>
+            )}
+
+            {!cargando && empleadosFiltrados.length > 0 && (
+                <Paginacion
+                    registrosPorPagina={registrosPorPagina}
+                    totalRegistros={empleadosFiltrados.length}
+                    paginaActual={paginaActual}
+                    establecerPaginaActual={setPaginaActual}
+                    establecerRegistrosPorPagina={setRegistrosPorPagina}
+                />
             )}
 
             {/* Modales */}

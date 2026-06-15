@@ -1,119 +1,191 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Pagination from "react-bootstrap/Pagination";
 import { Row, Col, Form } from "react-bootstrap";
 
 const Paginacion = ({
-    registrosPorPagina,
-    totalRegistros,
-    paginaActual,
-    establecerPaginaActual,
-    establecerRegistrosPorPagina
+  registrosPorPagina,
+  totalRegistros,
+  paginaActual,
+  establecerPaginaActual,
+  establecerRegistrosPorPagina,
 }) => {
-    // Calcular el total de páginas
-const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
-
-// Cambiar de página
-const cambiarPagina = (numeroPagina) => {
-    if (numeroPagina >= 1 && numeroPagina <= totalPaginas) {
-        establecerPaginaActual(numeroPagina);
-    }
-};
-
-// Cambiar la cantidad de registros por página
-const cambiarCantidadRegistros = (evento) => {
-    establecerRegistrosPorPagina(Number(evento.target.value));
-    establecerPaginaActual(1);
-};
-
-// Generar los botones de paginación
-const elementosPaginacion = [];
-const maximoPaginasAMostrar = 3;
-
-let paginaInicio = Math.max(
+  const totalPaginas = Math.max(
     1,
-    paginaActual - Math.floor(maximoPaginasAMostrar / 2)
-);
+    Math.ceil(totalRegistros / registrosPorPagina)
+  );
 
-let paginaFin = Math.min(
+  const paginaSegura = Math.min(
+    Math.max(1, paginaActual),
+    totalPaginas
+  );
+
+  useEffect(() => {
+    if (paginaActual !== paginaSegura) {
+      establecerPaginaActual(paginaSegura);
+    }
+  }, [
+    paginaActual,
+    paginaSegura,
+    establecerPaginaActual,
+  ]);
+
+  if (totalRegistros === 0) {
+    return null;
+  }
+
+  const cambiarPagina = (numeroPagina) => {
+    if (
+      numeroPagina >= 1 &&
+      numeroPagina <= totalPaginas
+    ) {
+      establecerPaginaActual(numeroPagina);
+    }
+  };
+
+  const cambiarCantidadRegistros = (evento) => {
+    establecerRegistrosPorPagina(
+      Number(evento.target.value)
+    );
+    establecerPaginaActual(1);
+  };
+
+  const inicioRegistro =
+    (paginaSegura - 1) * registrosPorPagina + 1;
+
+  const finRegistro = Math.min(
+    paginaSegura * registrosPorPagina,
+    totalRegistros
+  );
+
+  const maximoPaginasAMostrar = 5;
+  let paginaInicio = Math.max(
+    1,
+    paginaSegura -
+      Math.floor(maximoPaginasAMostrar / 2)
+  );
+  let paginaFin = Math.min(
     totalPaginas,
     paginaInicio + maximoPaginasAMostrar - 1
-);
+  );
 
-if (paginaFin - paginaInicio + 1 < maximoPaginasAMostrar) {
+  if (
+    paginaFin - paginaInicio + 1 <
+    maximoPaginasAMostrar
+  ) {
     paginaInicio = Math.max(
-        1,
-        paginaFin - maximoPaginasAMostrar + 1
+      1,
+      paginaFin - maximoPaginasAMostrar + 1
     );
-}
+  }
 
-for (let numeroPagina = paginaInicio; numeroPagina <= paginaFin; numeroPagina++) {
+  const elementosPaginacion = [];
+
+  for (
+    let numeroPagina = paginaInicio;
+    numeroPagina <= paginaFin;
+    numeroPagina++
+  ) {
     elementosPaginacion.push(
-        <Pagination.Item
-            key={numeroPagina}
-            active={numeroPagina === paginaActual}
-            onClick={() => cambiarPagina(numeroPagina)}
-        >
-            {numeroPagina}
-        </Pagination.Item>
+      <Pagination.Item
+        key={numeroPagina}
+        active={numeroPagina === paginaSegura}
+        onClick={() =>
+          cambiarPagina(numeroPagina)
+        }
+      >
+        {numeroPagina}
+      </Pagination.Item>
     );
-}
+  }
 
+  return (
+    <div className="paginacion-bar mt-4">
+      <Row className="align-items-center g-3">
+        <Col
+          xs={12}
+          md="auto"
+          className="paginacion-resumen"
+        >
+          <span>
+            Mostrando{" "}
+            <strong>
+              {inicioRegistro}-{finRegistro}
+            </strong>{" "}
+            de{" "}
+            <strong>{totalRegistros}</strong>
+          </span>
+        </Col>
 
-    return (
-
-        <Row className="mt-1 align-items-center">
-
-    {/* Selector de cantidad de registros */}
-    <Col xs="auto">
-        <Form.Select
+        <Col
+          xs={12}
+          md="auto"
+          className="d-flex align-items-center gap-2"
+        >
+          <Form.Label
+            htmlFor="registros-por-pagina"
+            className="mb-0 paginacion-etiqueta"
+          >
+            Por página
+          </Form.Label>
+          <Form.Select
+            id="registros-por-pagina"
             size="sm"
+            className="paginacion-select"
             value={registrosPorPagina}
             onChange={cambiarCantidadRegistros}
-        >
+          >
             <option value={5}>5</option>
+            <option value={8}>8</option>
             <option value={10}>10</option>
+            <option value={25}>25</option>
             <option value={50}>50</option>
-            <option value={100}>100</option>
-            <option value={500}>500</option>
-        </Form.Select>
-    </Col>
+          </Form.Select>
+        </Col>
 
-    {/* Controles de paginación */}
-    <Col className="d-flex justify-content-center">
-        <Pagination className="shadow-sm mt-2">
-
+        <Col className="d-flex justify-content-md-end justify-content-center">
+          <Pagination className="paginacion-controles mb-0">
             <Pagination.First
-                onClick={() => cambiarPagina(1)}
-                disabled={paginaActual === 1}
+              onClick={() => cambiarPagina(1)}
+              disabled={paginaSegura === 1}
             />
-
             <Pagination.Prev
-                onClick={() => cambiarPagina(paginaActual - 1)}
-                disabled={paginaActual === 1}
+              onClick={() =>
+                cambiarPagina(paginaSegura - 1)
+              }
+              disabled={paginaSegura === 1}
             />
 
-            {paginaInicio > 1 && <Pagination.Ellipsis />}
+            {paginaInicio > 1 && (
+              <Pagination.Ellipsis disabled />
+            )}
 
             {elementosPaginacion}
 
-            {paginaFin < totalPaginas && <Pagination.Ellipsis />}
+            {paginaFin < totalPaginas && (
+              <Pagination.Ellipsis disabled />
+            )}
 
             <Pagination.Next
-                onClick={() => cambiarPagina(paginaActual + 1)}
-                disabled={paginaActual === totalPaginas}
+              onClick={() =>
+                cambiarPagina(paginaSegura + 1)
+              }
+              disabled={
+                paginaSegura === totalPaginas
+              }
             />
-
             <Pagination.Last
-                onClick={() => cambiarPagina(totalPaginas)}
-                disabled={paginaActual === totalPaginas}
+              onClick={() =>
+                cambiarPagina(totalPaginas)
+              }
+              disabled={
+                paginaSegura === totalPaginas
+              }
             />
-
-        </Pagination>
-    </Col>
-
-</Row>
-
-    );
+          </Pagination>
+        </Col>
+      </Row>
+    </div>
+  );
 };
 
 export default Paginacion;

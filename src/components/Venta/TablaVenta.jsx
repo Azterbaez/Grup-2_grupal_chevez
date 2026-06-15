@@ -74,12 +74,8 @@ const TablaVentas = ({
 
                 {
                   venta.clientes
-                    ?.nombre_cliente || ""
-                }{" "}
-
-                {
-                  venta.clientes
-                    ?.apellido_cliente || ""
+                    ?.nombre_cliente ||
+                  "Sin cliente"
                 }
 
               </td>

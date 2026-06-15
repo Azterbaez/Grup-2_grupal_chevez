@@ -56,6 +56,8 @@ const Categorias = () => {
       );
       setCategoriasFiltradas(filtradas);
     }
+
+    establecerPaginaActual(1);
   }, [textoBusqueda, categorias]);
 
   const [nuevaCategoria, setNuevaCategoria] = useState({
@@ -298,7 +300,7 @@ const Categorias = () => {
         <Row className="mb-4">
           <Col md={6} lg={5}>
             <CuadroBusquedas
-              textBusqueda={textoBusqueda}
+              textoBusqueda={textoBusqueda}
               manejarCambioBusqueda={manejarBusqueda}
               placeholder="Buscar por nombre o descripcion..."
             />

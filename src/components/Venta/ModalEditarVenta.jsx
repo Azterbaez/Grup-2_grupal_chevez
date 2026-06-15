@@ -165,7 +165,7 @@ const ModalEditarVenta = ({
             cantidad:
               form.cantidad,
 
-            precio_unitario:
+            precio:
               form.productos
                 ?.precio_venta || 0,
 

@@ -6,7 +6,6 @@ import {
   Col,
   Button,
   Spinner,
-  Pagination,
 } from "react-bootstrap";
 
 import Swal from "sweetalert2";
@@ -14,10 +13,12 @@ import Swal from "sweetalert2";
 import { supabase } from "../database/supabaseconfig";
 
 import TablaCliente from "../components/Clientes/TablaCliente";
+import TarjetaCliente from "../components/Clientes/TarjetaCliente";
 import ModalRegistroCliente from "../components/Clientes/ModalRegistroCliente";
 import ModalEditarCliente from "../components/Clientes/ModalEditarCliente";
 import ModalEliminarCliente from "../components/Clientes/ModalEliminarCliente";
 import CuadroBusquedas from "../components/busquedas/cuadroBusquedas";
+import Paginacion from "../components/ordenamiento/Paginacion";
 
 const Clientes = () => {
 
@@ -33,7 +34,8 @@ const Clientes = () => {
 
   const [paginaActual, setPaginaActual] = useState(1);
 
-  const clientesPorPagina = 5;
+  const [registrosPorPagina, setRegistrosPorPagina] =
+    useState(5);
 
   // MODALES
 
@@ -165,21 +167,16 @@ const Clientes = () => {
   // ==========================
 
   const indiceUltimoCliente =
-    paginaActual * clientesPorPagina;
+    paginaActual * registrosPorPagina;
 
   const indicePrimerCliente =
-    indiceUltimoCliente - clientesPorPagina;
+    indiceUltimoCliente - registrosPorPagina;
 
   const clientesActuales =
     clientesFiltrados.slice(
       indicePrimerCliente,
       indiceUltimoCliente
     );
-
-  const totalPaginas = Math.ceil(
-    clientesFiltrados.length /
-      clientesPorPagina
-  );
 
   // ==========================
   // REGISTRAR CLIENTE
@@ -419,67 +416,41 @@ const Clientes = () => {
 
         <>
 
-          <TablaCliente
-            clientes={clientesActuales}
-            abrirModalEdicion={
-              abrirModalEdicion
-            }
-            abrirModalEliminar={
-              abrirModalEliminar
-            }
-          />
+          <div className="d-none d-lg-block">
+
+            <TablaCliente
+              clientes={clientesActuales}
+              abrirModalEdicion={
+                abrirModalEdicion
+              }
+              abrirModalEliminar={
+                abrirModalEliminar
+              }
+            />
+
+          </div>
+
+          <div className="d-lg-none">
+
+            <TarjetaCliente
+              clientes={clientesActuales}
+              abrirModalEdicion={abrirModalEdicion}
+              abrirModalEliminar={abrirModalEliminar}
+            />
+
+          </div>
 
           {/* PAGINACIÓN */}
 
-          <div className="d-flex justify-content-center mt-4">
-
-            <Pagination>
-
-              <Pagination.Prev
-                disabled={paginaActual === 1}
-                onClick={() =>
-                  setPaginaActual(
-                    paginaActual - 1
-                  )
-                }
-              />
-
-              {[...Array(totalPaginas)].map(
-                (_, index) => (
-
-                  <Pagination.Item
-                    key={index}
-                    active={
-                      paginaActual ===
-                      index + 1
-                    }
-                    onClick={() =>
-                      setPaginaActual(
-                        index + 1
-                      )
-                    }
-                  >
-                    {index + 1}
-                  </Pagination.Item>
-
-                )
-              )}
-
-              <Pagination.Next
-                disabled={
-                  paginaActual ===
-                  totalPaginas
-                }
-                onClick={() =>
-                  setPaginaActual(
-                    paginaActual + 1
-                  )
-                }
-              />
-
-            </Pagination>
-
-          </div>
+          <Paginacion
+            registrosPorPagina={registrosPorPagina}
+            totalRegistros={clientesFiltrados.length}
+            paginaActual={paginaActual}
+            establecerPaginaActual={setPaginaActual}
+            establecerRegistrosPorPagina={
+              setRegistrosPorPagina
+            }
+          />
 
         </>
 

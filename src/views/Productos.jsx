@@ -134,6 +134,8 @@ const Productos = () => {
       setProductosFiltrados(filtrados);
     }
 
+    establecerPaginaActual(1);
+
   }, [textoBusqueda, productos]);
 
   // =========================
@@ -663,7 +665,7 @@ const Productos = () => {
         <Col xs={12} className="d-lg-none">
 
           <TarjetasProductos
-            productos={productosFiltrados}
+            productos={productosPaginados}
             categorias={categorias}
             abrirModalEdicion={abrirModalEdicion}
             abrirModalEliminacion={abrirModalEliminacion}
