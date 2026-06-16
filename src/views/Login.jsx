@@ -55,13 +55,21 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page">
 
-      {/* FONDO ANIMADO */}
+<div
+  className="login-page"
+  style={{
+    backgroundImage:
+      'linear-gradient(rgba(15,41,34,0.55), rgba(15,41,34,0.55)), url("https://www.shutterstock.com/image-photo/young-woman-pushing-shopping-cart-260nw-2633121861.jpg")',
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    minHeight: "100vh",
+  }}
+> 
+  
 
-      <div className="background-blur blur-1"></div>
-      <div className="background-blur blur-2"></div>
-      <div className="background-blur blur-3"></div>
+
 
       <Container fluid className="min-vh-100 d-flex align-items-center justify-content-center position-relative px-4">
 
@@ -135,94 +143,93 @@ const Login = () => {
           </Col>
           {/* PANEL DERECHO */}
 
-        <Col lg={6} className="login-panel-form">
-          <Card className="login-card border-0">
-            <Card.Body>
-              <div className="text-center mb-4">
-                <h2 className="mb-2">Iniciar sesión</h2>
-                <p className="text-muted mb-0 login-footer-note">
-                  Ingresa con tu cuenta de empleado
-                </p>
-              </div>
+          <Col lg={6} className="login-panel-form">
+            <Card className="login-card border-0">
+              <Card.Body>
+                <div className="text-center mb-4">
+                  <h2 className="mb-2">Iniciar sesión</h2>
+                  <p className="text-muted mb-0 login-footer-note">
+                    Ingresa con tu cuenta de empleado
+                  </p>
+                </div>
 
-              {error && (
-                <Alert variant="danger" className="py-2 small border-0">
-                  <i className="bi bi-exclamation-circle me-2" aria-hidden />
-                  {error}
-                </Alert>
-              )}
+                {error && (
+                  <Alert variant="danger" className="py-2 small border-0">
+                    <i className="bi bi-exclamation-circle me-2" aria-hidden />
+                    {error}
+                  </Alert>
+                )}
 
-              <Form onSubmit={handleLogin}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Correo electrónico</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text>
-                      <i className="bi bi-envelope" aria-hidden />
-                    </InputGroup.Text>
-                    <Form.Control
-                      type="email"
-                      placeholder="correo@ejemplo.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoComplete="email"
-                    />
-                  </InputGroup>
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                  <Form.Label>Contraseña</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text>
-                      <i className="bi bi-lock" aria-hidden />
-                    </InputGroup.Text>
-                    <Form.Control
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      autoComplete="current-password"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline-secondary"
-                      onClick={() => setShowPassword(!showPassword)}
-                      aria-label={
-                        showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-                      }
-                    >
-                      <i
-                        className={`bi ${
-                          showPassword ? "bi-eye-slash" : "bi-eye"
-                        }`}
-                        aria-hidden
+                <Form onSubmit={handleLogin}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Correo electrónico</Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>
+                        <i className="bi bi-envelope" aria-hidden />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type="email"
+                        placeholder="correo@ejemplo.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        autoComplete="email"
                       />
-                    </Button>
-                  </InputGroup>
-                </Form.Group>
+                    </InputGroup>
+                  </Form.Group>
 
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="login-btn-submit w-100"
-                >
-                  {loading ? (
-                    <>
-                      <Spinner animation="border" size="sm" className="me-2" />
-                      Ingresando…
-                    </>
-                  ) : (
-                    "Entrar al sistema"
-                  )}
-                </Button>
-              </Form>
+                  <Form.Group className="mb-4">
+                    <Form.Label>Contraseña</Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>
+                        <i className="bi bi-lock" aria-hidden />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        autoComplete="current-password"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline-secondary"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={
+                          showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                        }
+                      >
+                        <i
+                          className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"
+                            }`}
+                          aria-hidden
+                        />
+                      </Button>
+                    </InputGroup>
+                  </Form.Group>
 
-              <p className="text-center login-footer-note mt-4 mb-0">
-                Pulpería Don Chevez · {new Date().getFullYear()}
-              </p>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="login-btn-submit w-100"
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner animation="border" size="sm" className="me-2" />
+                        Ingresando…
+                      </>
+                    ) : (
+                      "Entrar al sistema"
+                    )}
+                  </Button>
+                </Form>
+
+                <p className="text-center login-footer-note mt-4 mb-0">
+                  Pulpería Don Chevez · {new Date().getFullYear()}
+                </p>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
       </Container>
     </div>
   );

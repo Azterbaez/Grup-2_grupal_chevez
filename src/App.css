@@ -551,3 +551,14 @@
     justify-content: center;
   }
 }
+
+
+@media (max-width: 991px) {
+  .hero-content {
+    display: none;
+  }
+
+  .login-card {
+    max-width: 450px;
+  }
+}
