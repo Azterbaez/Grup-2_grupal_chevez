@@ -699,33 +699,47 @@ const Ventas = () => {
 
     try {
 
-      const detallesAnteriores =
-        ventaAEditar?.detalle_venta ||
-        [];
+  const detallesAnteriores =
+    ventaAEditar?.detalle_venta || [];
+
+  const cantidadTotal = detalles.reduce(
+    (sum, d) => sum + d.cantidad,
+    0
+  );
 
       if (ventaAEditar) {
 
-        const {
-          error: updateError
-        } = await supabase
-          .from("ventas")
-          .update({
-            id_cliente:
-              clienteSeleccionado.id_cliente,
+       const {
+  error: updateError
+} = await supabase
+  .from("ventas")
+  .update({
+    cantidad: cantidadTotal,
 
-            id_empleado:
-              empleadoSeleccionado.id_empleado,
+    id_cliente:
+      clienteSeleccionado.id_cliente,
 
-            metodo_pago:
-              metodoPago,
+    id_empleado:
+      empleadoSeleccionado.id_empleado,
 
-            total:
-              totalGeneral
-          })
-          .eq(
-            "id_venta",
-            ventaAEditar.id_venta
-          );
+    metodo_pago:
+      metodoPago,
+
+    total:
+      totalGeneral
+  })
+  .eq(
+    "id_venta",
+    ventaAEditar.id_venta
+  );
+
+if (updateError) {
+  console.error(
+    "Error actualizando venta:",
+    updateError
+  );
+  throw updateError;
+}
 
         if (updateError)
           throw updateError;
@@ -784,30 +798,37 @@ const Ventas = () => {
       } else {
 
         const {
-          data: ventaData,
-          error: ventaError
-        } = await supabase
-          .from("ventas")
-          .insert([
-            {
-              id_cliente:
-                clienteSeleccionado.id_cliente,
+  data: ventaData,
+  error: ventaError
+} = await supabase
+  .from("ventas")
+  .insert([
+    {
+      cantidad: cantidadTotal,
 
-              id_empleado:
-                empleadoSeleccionado.id_empleado,
+      total:
+        totalGeneral,
 
-              metodo_pago:
-                metodoPago,
+      id_cliente:
+        clienteSeleccionado.id_cliente,
 
-              total:
-                totalGeneral
-            }
-          ])
-          .select()
-          .single();
+      id_empleado:
+        empleadoSeleccionado.id_empleado,
 
-        if (ventaError)
-          throw ventaError;
+      metodo_pago:
+        metodoPago
+    }
+  ])
+  .select()
+  .single();
+
+if (ventaError) {
+  console.error(
+    "Error insertando venta:",
+    ventaError
+  );
+  throw ventaError;
+}
 
         const detallesInsert =
           detalles.map((d) => ({
@@ -858,22 +879,26 @@ const Ventas = () => {
 
     } catch (err) {
 
-      console.error(
-        "Error al guardar venta:",
-        err
-      );
+    console.error(
+      "Error al guardar venta:",
+      err
+    );
 
-      setToast({
-        mostrar: true,
-        mensaje:
-          "Error al guardar la venta",
-        tipo: "error"
-      });
+    console.log(
+      JSON.stringify(err, null, 2)
+    );
 
-    }
+    setToast({
+      mostrar: true,
+      mensaje:
+        err?.message ||
+        "Error al guardar la venta",
+      tipo: "error"
+    });
 
-  };
+  }
 
+};
   // ==================== BUSQUEDA ====================
 
   const manejarBusqueda = (e) => {
